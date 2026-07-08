@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Showroom VIP | Multiamerica</title>
+    
+    <!-- Tailwind CSS y Fuentes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
+    
+    <!-- Supabase y Config -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="public-db.js"></script>
+
+    <style>
+        :root { --brand-orange: #ff8801; }
+        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .font-title { font-family: 'Montserrat', sans-serif; }
+
+        /* Drawer de Filtros */
+        #filter-drawer {
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #filter-drawer.open { transform: translateX(0); }
+        
+        .filter-input {
+            width: 100%; padding: 14px; border-radius: 16px;
+            background: #f1f3f5; border: 2px solid transparent; font-size: 14px; outline: none;
+            font-weight: 600; transition: all 0.3s; color: #1a202c;
+        }
+        .filter-input:focus { border-color: var(--brand-orange); background: white; box-shadow: 0 0 0 4px rgba(255,136,1,0.1); }
+
+        /* Tarjetas de Vehículos */
+        .car-card { background: white; border-radius: 32px; border: 1px solid #edf2f7; transition: all 0.4s ease; overflow: hidden; cursor: pointer; }
+        @media (min-width: 768px) { .car-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); border-color: #e2e8f0; } }
+
+        /* Panel de Carrito */
+        #cart-panel {
+            transform: translateX(-50%) translateY(150%);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #cart-panel.active { transform: translateX(-50%) translateY(0); }
+
+        /* Botones de Navegación de Fotos */
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(4px);
+            width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; transition: all 0.2s; color: #1a202c; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .nav-btn:hover { background: white; transform: scale(1.1); }
+        .nav-btn:active { scale: 0.9; }
+
+        /* Botones de Categoría */
+        .cat-btn {
+            width: 100%; padding: 14px; text-align: center; border-radius: 16px;
+            background: #f1f3f5; font-size: 11px; font-weight: 800; text-transform: uppercase;
+            letter-spacing: 1px; transition: all 0.3s; border: 2px solid transparent; color: #4a5568;
+        }
+        .cat-btn.active { background: white; border-color: var(--brand-orange); color: black; box-shadow: 0 4px 12px rgba(255,136,1,0.15); }
+
+        /* Ocultar scrollbar en el grid de categorías */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Tutorial Styles */
+        .tutorial-highlight {
+            position: relative !important; z-index: 160 !important;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 136, 1, 0.6) !important;
+            outline: 4px solid var(--brand-orange) !important;
+            background-color: white !important; border-radius: 24px;
+        }
+        #tutorial-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); z-index: 150; display: none; }
+        #tutorial-bubble {
+            position: fixed; z-index: 200; background: white; padding: 25px; border-radius: 30px;
+            width: 280px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); display: none; border-l-8 border-[#ff8801];
+        }
+    </style>
+</head>
+<body class="pb-32 md:pb-40">
+
+    <!-- Elementos del Tutorial -->
+    <div id="tutorial-overlay"></div>
+    <div id="tutorial-bubble">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-[#ff8801]">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Asistente Virtual</span>
+        </div>
+        <p id="tutorial-text" class="text-xs font-bold text-gray-800 leading-relaxed"></p>
+        <button onclick="siguientePaso()" class="mt-5 w-full py-3 bg-black text-white rounded-xl text-[10px] font-black uppercase tracking-widest active:scale-95 transition-all">Siguiente Paso ➔</button>
+    </div>
+    <audio id="guia-audio"></audio>
+
+    <!-- Navegación Premium -->
+    <nav class="sticky top-0 bg-white/90 backdrop-blur-xl z-[60] border-b border-gray-100 px-4 md:px-8 py-4 flex justify-between items-center shadow-sm">
+        <div class="flex items-center gap-4">
+            <!-- Botón Volver -->
+            <button onclick="window.location.href='index.html'" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 hover:bg-black hover:text-white transition-all shadow-sm">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <!-- Logo y Marca -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <img src="multiamerica_logo.png" alt="Multiamerica Logo" class="h-8 md:h-10 object-contain drop-shadow-sm">
+                <h1 class="hidden sm:block text-lg md:text-xl font-title font-black tracking-tighter uppercase italic leading-none">
+                    MULTI<span class="text-[#ff8801]">AMERICA VEHICULOS</span>
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 md:gap-3">
+            
+            <!-- Botón del Tutorial (Agregado aquí) -->
+            <button onclick="iniciarTutorial()" class="bg-white border border-gray-200 text-black px-3 md:px-4 py-2.5 rounded-full flex items-center gap-2 shadow-sm hover:border-[#ff8801] transition-all active:scale-95">
+                <i class="fa-solid fa-robot text-[#ff8801] animate-bounce"></i>
+                <span class="hidden md:inline text-[10px] font-black uppercase tracking-tighter">Guía Rápida</span>
+            </button>
+
+            <button id="btn-filtros" onclick="toggleFilters()" class="bg-black text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all shadow-md hover:bg-gray-800">
+                <span class="hidden md:inline">Filtros Avanzados</span>
+                <span class="md:hidden">Filtros</span>
+                <i class="fa-solid fa-sliders text-[#ff8801]"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Buscador Principal -->
+    <header class="max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-12 pb-6">
+        <div class="flex flex-col md:flex-row gap-6 items-center justify-between">
+            <div id="buscador-container" class="w-full md:w-2/3 relative">
+                <input type="text" id="buscador" placeholder="Busca por marca, modelo o año..." 
+                    class="w-full p-5 pl-14 rounded-full bg-white border border-gray-200 shadow-sm outline-none text-base font-medium focus:border-[#ff8801] focus:ring-4 focus:ring-[#ff8801]/10 transition-all">
+                <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+            </div>
+            
+            <!-- Categorías rápidas (Scroll horizontal en móvil) -->
+            <div class="w-full md:w-1/3 flex gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0" id="cat-container-quick">
+                <button onclick="setCategoria('Todas', this)" class="cat-btn quick-cat active flex-shrink-0 w-auto px-6 rounded-full">Todos</button>
+                <button onclick="setCategoria('SUV', this)" class="cat-btn quick-cat flex-shrink-0 w-auto px-6 rounded-full">SUVs</button>
+                <button onclick="setCategoria('Pickup', this)" class="cat-btn quick-cat flex-shrink-0 w-auto px-6 rounded-full">Pickups</button>
+                <button onclick="setCategoria('Sedan', this)" class="cat-btn quick-cat flex-shrink-0 w-auto px-6 rounded-full">Sedán</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Grid de Inventario -->
+    <main id="inventory-grid" class="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8"></main>
+
+    <!-- Drawer de Filtros Laterales -->
+    <aside id="filter-drawer" class="fixed top-0 right-0 h-full w-full max-w-sm z-[100] bg-white/95 backdrop-blur-xl border-l border-gray-200 shadow-2xl flex flex-col">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+            <h2 class="font-title font-black uppercase italic text-xl tracking-tighter">Filtros <span class="text-[#ff8801]">Pro</span></h2>
+            <button onclick="toggleFilters()" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-black transition-all">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+        
+        <div class="p-6 overflow-y-auto flex-1 space-y-8">
+            <!-- Categoría -->
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-3 block"><i class="fa-solid fa-car-side mr-2"></i> Tipo de Vehículo</label>
+                <div class="grid grid-cols-2 gap-3" id="cat-container-drawer">
+                    <button onclick="setCategoria('Todas', this)" class="cat-btn drawer-cat active">Todas</button>
+                    <button onclick="setCategoria('SUV', this)" class="cat-btn drawer-cat">SUVs</button>
+                    <button onclick="setCategoria('Pickup', this)" class="cat-btn drawer-cat">Pickups</button>
+                    <button onclick="setCategoria('Sedan', this)" class="cat-btn drawer-cat">Sedanes</button>
+                    <button onclick="setCategoria('Deportivo', this)" class="cat-btn drawer-cat">Sport</button>
+                </div>
+            </div>
+
+            <!-- Año -->
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-3 block"><i class="fa-regular fa-calendar mr-2"></i> Rango de Año</label>
+                <div class="flex gap-3 items-center">
+                    <select id="min-year" class="filter-input">
+                        <option value="0">Desde</option>
+                        <script>for(let y=2026; y>=1990; y--) document.write(`<option value="${y}">${y}</option>`);</script>
+                    </select>
+                    <span class="text-gray-300 font-bold">-</span>
+                    <select id="max-year" class="filter-input">
+                        <option value="3000">Hasta</option>
+                        <script>for(let y=2026; y>=1990; y--) document.write(`<option value="${y}">${y}</option>`);</script>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Transmisión -->
+            <div>
+                <label class="text-[10px] font-black uppercase text-gray-400 tracking-widest mb-3 block"><i class="fa-solid fa-gear mr-2"></i> Transmisión</label>
+                <select id="transmision" class="filter-input">
+                    <option value="Todas">Todas las transmisiones</option>
+                    <option value="Automática">Automática</option>
+                    <option value="Sincrónica">Sincrónica</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="p-6 border-t border-gray-100 flex gap-3 bg-white">
+            <button onclick="resetFiltros()" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-all">Limpiar</button>
+            <button onclick="aplicarFiltrosDrawer()" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-black bg-[#ff8801] rounded-2xl shadow-[0_10px_20px_rgba(255,136,1,0.2)] hover:scale-105 active:scale-95 transition-all">Aplicar</button>
+        </div>
+    </aside>
+
+    <!-- Panel de Carrito / Checkout (Flotante) -->
+    <div id="cart-panel" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-2xl bg-white/90 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-4 md:p-5 rounded-[32px] md:rounded-[40px] z-[90] flex justify-between items-center border border-gray-200">
+        <div class="flex items-center gap-4 pl-2">
+            <div class="w-12 h-12 bg-black text-[#ff8801] rounded-full flex items-center justify-center text-xl shadow-inner">
+                <i class="fa-solid fa-garage"></i>
+            </div>
+            <div class="flex flex-col">
+                <span id="cart-count" class="text-xs font-black uppercase tracking-widest text-gray-900">0 Vehículos</span>
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight">En tu selección</span>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="abrirChatConSeleccion()" class="bg-gray-100 text-black px-4 md:px-6 py-3 md:py-4 rounded-2xl font-black uppercase text-[9px] md:text-[10px] tracking-widest active:scale-95 transition-all hover:bg-gray-200 hidden sm:flex items-center gap-2">
+                <i class="fa-solid fa-robot text-[#ff8801]"></i> Consultar...
+            </button>
+            <button onclick="irAlCheckout()" class="bg-[#ff8801] text-black px-6 md:px-8 py-3 md:py-4 rounded-2xl font-black uppercase text-[10px] md:text-[11px] tracking-widest active:scale-95 transition-all shadow-[0_5px_15px_rgba(255,136,1,0.3)] hover:bg-black hover:text-white flex items-center gap-2">
+                Agendar <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Script Extraído -->
+    <script src="showroom.js"></script>
+</body>
+</html>

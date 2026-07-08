@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Multiamerica | Concesionario Elite Caracas</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="public-db.js"></script>
+
+    <style>
+        :root { --brand-orange: #ff8801; }
+        /* Fondo claro para toda la web */
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; color: #111827; overflow-x: hidden; margin: 0; }
+        .font-title { font-family: 'Montserrat', sans-serif; }
+
+        /* TIPOGRAFÍA FLUIDA */
+        .fluid-h1 { font-size: clamp(3rem, 10vw, 8rem); line-height: 0.85; letter-spacing: -0.04em; }
+        .fluid-h2 { font-size: clamp(2.5rem, 6vw, 5rem); line-height: 0.9; letter-spacing: -0.03em; }
+        .fluid-p { font-size: clamp(0.875rem, 2vw, 1.25rem); line-height: 1.6; }
+
+        /* Pantallas de Carga */
+        #enter-screen {
+            position: fixed; inset: 0; background-color: #000000; z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease-in-out; cursor: pointer;
+        }
+        #video-loader {
+            position: fixed; inset: 0; background-color: #000000; z-index: 9999;
+            display: flex; align-items: center; justify-content: center; transition: opacity 1s ease-in-out;
+        }
+        #video-loader video { width: 100%; max-width: 800px; height: auto; outline: none; }
+
+        .reveal-text-wrapper { overflow: hidden; display: block; }
+        .reveal-text { transform: translateY(100%); display: inline-block; }
+
+        /* Efecto de ruido sutil adaptado a fondo claro */
+        .film-grain {
+            position: fixed; inset: 0; z-index: 50; pointer-events: none; opacity: 0.04;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            mix-blend-mode: multiply;
+        }
+
+        /* Pared del Poster */
+        .wall-texture {
+            background-color: #ffffff;
+            background-image: radial-gradient(circle at center, rgba(0,0,0,0.02) 0%, transparent 100%),
+                              url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+        }
+        
+        .cinta-adhesiva {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            width: 120px;
+            height: 35px;
+            background-color: rgba(255, 255, 255, 0.6);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            backdrop-filter: blur(4px);
+            transform: translateX(-50%) rotate(-2deg);
+            z-index: 10;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="w-full relative overflow-x-hidden">
+
+    <div class="film-grain"></div>
+
+    <!-- PANTALLA DE CARGA EN NEGRO -->
+    <div id="enter-screen" onclick="iniciarConSonido()">
+        <img src="multiamerica_logo.png" onerror="this.style.display='none'" class="w-40 md:w-64 mb-6 drop-shadow-[0_0_40px_rgba(255,136,1,0.4)]" alt="Multiamerica Logo">
+        
+        <div class="flex items-center gap-3 animate-pulse mt-8">
+            <span class="w-2 h-2 bg-[#ff8801] rounded-full"></span>
+            <p class="text-[10px] md:text-xs text-gray-400 uppercase tracking-[0.3em] font-bold">Toca la pantalla para iniciar</p>
+        </div>
+    </div>
+
+    <!-- VIDEO DE CARGA EN NEGRO -->
+    <div id="video-loader">
+        <video id="intro-video" playsinline>
+            <source src="intro-video.mp4" type="video/webm">
+        </video>
+    </div>
+
+    <!-- ================= NAVEGACIÓN FIJA ================= -->
+    <nav class="fixed top-0 left-0 w-full z-50 px-6 md:px-12 py-4 flex justify-between items-center opacity-0 transition-all duration-300" id="navbar">
+        <div class="flex items-center gap-4 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <!-- LOGO CORREGIDO: Sin brightness-0 para que se vea a color y con sombra -->
+            <img src="multiamerica_logo.png" alt="Multiamerica" class="h-10 md:h-14 object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.15)]">
+            <div class="hidden sm:block text-2xl font-black italic uppercase tracking-tighter text-black">MULTI<span class="text-[#ff8801]">AMERICA</span></div>
+        </div>
+
+        <div class="flex items-center gap-6">
+            <div class="hidden md:flex gap-8 items-center font-bold text-[10px] lg:text-xs uppercase tracking-widest text-gray-700">
+                <a href="showroom.html" class="hover:text-black transition-colors">Showroom</a>
+                <a href="concesionar.html" class="hover:text-black transition-colors">Consignación</a>
+            </div>
+            <button onclick="window.location.href='showroom.html'" class="bg-black text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-[#ff8801] hover:text-black transition-all shadow-lg active:scale-95">
+                Ver Inventario
+            </button>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION CLARO -->
+    <section class="relative w-full h-screen min-h-[600px] flex flex-col justify-center px-6 md:px-12 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <video autoplay loop muted playsinline class="w-full h-full object-cover opacity-60 scale-105" id="bg-video">
+                <source src="fondo1.mp4" type="video/mp4"> 
+            </video>
+            <!-- Degradados blancos para leer texto oscuro -->
+            <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/70 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#f8f9fa] via-transparent to-transparent"></div>
+        </div>
+
+        <div class="relative z-10 max-w-5xl mt-20 md:mt-0">
+            <div class="reveal-text-wrapper mb-6">
+                <span class="reveal-text inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-black/5 border border-black/10 backdrop-blur-md">
+                    <span class="w-2 h-2 bg-[#ff8801] rounded-full animate-pulse"></span>
+                    <span class="text-[9px] font-black uppercase tracking-[0.3em] text-black">Concesionario Elite Caracas</span>
+                </span>
+            </div>
+
+            <h1 class="font-title font-black uppercase italic fluid-h1 text-black">
+                <div class="reveal-text-wrapper"><span class="reveal-text">LA EXCELENCIA</span></div>
+                <div class="reveal-text-wrapper"><span class="reveal-text text-transparent bg-clip-text bg-gradient-to-r from-black to-gray-400">NO SE NEGOCIA.</span></div>
+            </h1>
+            
+            <div class="reveal-text-wrapper mt-6 md:mt-10">
+                <p class="reveal-text text-gray-700 font-medium max-w-xl fluid-p">
+                    Experimenta la compra automotriz más segura, transparente y exclusiva de Venezuela. Inventario premium de entrega inmediata.
+                </p>
+            </div>
+
+            <div class="reveal-text-wrapper mt-10">
+                <div class="reveal-text flex flex-wrap gap-4">
+                    <button onclick="window.location.href='showroom.html'" class="bg-[#ff8801] text-black font-black uppercase tracking-widest text-xs px-8 md:px-12 py-5 rounded-full hover:bg-black hover:text-white transition-all shadow-[0_10px_30px_rgba(255,136,1,0.3)] hover:scale-105 active:scale-95">
+                        Explorar Showroom
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RECLUTAMIENTO CLARO -->
+    <section id="reclutamiento-section" class="relative py-24 md:py-32 wall-texture overflow-hidden border-t border-gray-200">
+        <div class="absolute top-0 left-0 w-full md:w-1/2 h-full bg-[#ff8801]/5 blur-[150px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10 grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+            
+            <div class="relative flex justify-center perspective-1000">
+                <div id="poster-pegado" class="relative w-full max-w-[380px] lg:max-w-[420px] origin-center rotate-[-3deg] opacity-0 scale-125">
+                    <div class="absolute inset-0 bg-black/20 blur-xl translate-y-6 translate-x-4 pointer-events-none"></div>
+                    <div class="cinta-adhesiva"></div>
+                    <img src="reclutamiento.png" alt="Reclutamiento Equipo" class="relative w-full h-auto rounded-sm border-[10px] border-white shadow-xl">
+                </div>
+            </div>
+
+            <div class="space-y-6 md:space-y-8 text-center lg:text-left gs-reveal-poster">
+                <div class="flex items-center justify-center lg:justify-start gap-3">
+                    <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                    <span class="text-red-500 text-[10px] font-black uppercase tracking-[0.3em]">Oportunidad de Carrera</span>
+                </div>
+                
+                <h2 class="text-5xl md:text-7xl font-title font-black uppercase italic tracking-tighter leading-[0.9] text-black">
+                    TE NECESITAMOS <br><span class="text-[#ff8801]">A TI.</span>
+                </h2>
+                
+                <p class="text-gray-600 text-sm md:text-lg font-medium max-w-md mx-auto lg:mx-0 leading-relaxed">
+                    Buscamos a los mejores cerradores del país. Únete a la red comercial más exclusiva, accede a nuestro inventario premium y gana las comisiones más altas del mercado.
+                </p>
+
+                <ul class="text-black text-sm md:text-base space-y-4 mt-6 text-left max-w-md mx-auto lg:mx-0 border-l-2 border-[#ff8801] pl-6">
+                    <li><strong class="text-black">Inventario Premium:</strong> Autos de lujo listos para entrega inmediata.</li>
+                    <li><strong class="text-black">Seguridad Total:</strong> Cierres blindados jurídicamente.</li>
+                    <li><strong class="text-black">Gerencia Asistida:</strong> Apoyo directivo para concretar tus negocios.</li>
+                </ul>
+
+                <div class="pt-8">
+                    <button onclick="window.location.href='postulacion-vendedor.html'" class="w-full lg:w-auto bg-[#ff8801] text-black font-black uppercase tracking-widest text-xs px-12 py-5 rounded-2xl hover:bg-black hover:text-white transition-all shadow-[0_10px_30px_rgba(255,136,1,0.3)] hover:scale-105 active:scale-95 flex items-center justify-center gap-3 mx-auto lg:mx-0">
+                        <i class="fa-solid fa-file-arrow-up text-lg"></i> Enviar Curriculum
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- RECIÉN LLEGADOS CLARO -->
+    <section class="py-24 md:py-32 px-6 md:px-12 bg-white text-black relative z-20 rounded-t-[40px] md:rounded-t-[80px] shadow-[0_-20px_50px_rgba(0,0,0,0.02)] border-t border-gray-100">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 gs-reveal">
+                <div>
+                    <span class="text-[#ff8801] font-black uppercase tracking-[0.3em] text-[10px]">Stock Reciente</span>
+                    <h2 class="fluid-h2 font-title font-black uppercase italic leading-none mt-2 tracking-tighter text-black">RECIÉN <br>LLEGADOS.</h2>
+                </div>
+                <a href="showroom.html" class="group flex items-center gap-3 text-xs font-black uppercase tracking-widest border-b-2 border-black pb-2 hover:text-[#ff8801] hover:border-[#ff8801] transition-all text-black">
+                    Ver Catálogo Completo <span class="group-hover:translate-x-2 transition-transform">→</span>
+                </a>
+            </div>
+            
+            <div id="grid-destacados" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <div class="animate-pulse bg-gray-100 h-[400px] md:h-[450px] rounded-[30px] md:rounded-[40px]"></div>
+                <div class="animate-pulse bg-gray-100 h-[400px] md:h-[450px] rounded-[30px] md:rounded-[40px]"></div>
+                <div class="animate-pulse bg-gray-100 h-[400px] md:h-[450px] rounded-[30px] md:rounded-[40px]"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER CLARO (CORREGIDO) -->
+    <footer class="bg-gray-100 border-t border-gray-200 py-16 px-6 md:px-12">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+            <div class="flex flex-col items-center md:items-start">
+                <!-- LOGO CORREGIDO: Sin brightness-0 ni opacity-80 -->
+                <img src="multiamerica_logo.png" alt="Multiamerica Logo" class="h-12 object-contain mb-3 drop-shadow-sm transition-all hover:scale-105 duration-300">
+                <p class="text-gray-500 text-[10px] uppercase font-bold tracking-widest mt-2">© 2026 Caracas, Venezuela.</p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-8 items-center text-[10px] font-black uppercase tracking-widest text-gray-500">
+                <a href="nosotros.html" class="hover:text-black transition-all">Sobre nosotros</a>
+                <a href="concesionar.html" class="hover:text-black transition-all">Consignar</a>
+                <a href="vendedores.html" class="hover:text-black transition-all border border-gray-300 px-4 py-2 rounded-full hover:bg-white">Intranet</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Lógica de Scroll para Navbar CLARA
+            window.addEventListener('scroll', () => {
+                const nav = document.getElementById('navbar');
+                if (window.scrollY > 30) {
+                    nav.classList.add('bg-white/95', 'backdrop-blur-md', 'border-b', 'border-gray-200/80', 'shadow-sm');
+                    nav.classList.replace('py-4', 'py-3');
+                } else {
+                    nav.classList.remove('bg-white/95', 'backdrop-blur-md', 'border-b', 'border-gray-200/80', 'shadow-sm');
+                    nav.classList.replace('py-3', 'py-4');
+                }
+            });
+
+            // 1. CONTROL PANTALLA DE CARGA (SOLO A NUEVOS USUARIOS)
+            const enterScreen = document.getElementById('enter-screen');
+            const videoLoader = document.getElementById('video-loader');
+            const introVideo = document.getElementById('intro-video');
+
+            // CAMBIO CLAVE: Usar localStorage en lugar de sessionStorage. 
+            // Así el intro solo se muestra a usuarios que NUNCA han visitado la página (o borraron caché).
+            // No los molestará cada vez que vuelvan al index o abran otra pestaña.
+            const yaVioIntro = localStorage.getItem('multiamerica_intro');
+            let fallbackTimer;
+
+            function forzarEntradaWeb() {
+                clearTimeout(fallbackTimer);
+                videoLoader.style.opacity = '0';
+                setTimeout(() => {
+                    videoLoader.style.display = 'none';
+                    enterScreen.style.display = 'none';
+                    
+                    const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+                    tl.to("#navbar", { opacity: 1, y: 0, duration: 1 });
+                    tl.to(".reveal-text", { y: "0%", duration: 1.2, stagger: 0.15 }, "-=0.5");
+                    ScrollTrigger.refresh();
+                }, 1000);
+            }
+
+            if (yaVioIntro) {
+                // SI YA ES UN USUARIO RECURRENTE: Omitir intro instantáneamente
+                enterScreen.style.display = 'none';
+                videoLoader.style.display = 'none';
+                setTimeout(() => {
+                    const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+                    tl.to("#navbar", { opacity: 1, y: 0, duration: 1 });
+                    tl.to(".reveal-text", { y: "0%", duration: 1.2, stagger: 0.15 }, "-=0.5");
+                    ScrollTrigger.refresh();
+                }, 100);
+            } else {
+                // SI ES UN USUARIO NUEVO: Mostrar el intro con sonido
+                window.iniciarConSonido = function() {
+                    enterScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        enterScreen.style.display = 'none';
+                        introVideo.volume = 1;
+                        
+                        fallbackTimer = setTimeout(forzarEntradaWeb, 15000);
+                        
+                        introVideo.play().catch(e => {
+                            console.log("Error de reproducción forzada:", e);
+                            forzarEntradaWeb();
+                        });
+                    }, 500);
+                };
+
+                introVideo.addEventListener('ended', () => {
+                    // Marcarlo en localStorage para que NUNCA MÁS le salga
+                    localStorage.setItem('multiamerica_intro', 'true');
+                    forzarEntradaWeb();
+                });
+            }
+
+            // Animaciones Scroll
+            gsap.utils.toArray('.gs-reveal').forEach(function(elem) {
+                gsap.fromTo(elem, { y: 50, autoAlpha: 0 }, {
+                    duration: 1, y: 0, autoAlpha: 1, ease: "power3.out",
+                    scrollTrigger: { trigger: elem, start: "top 85%" }
+                });
+            });
+
+            // Animación del póster de reclutamiento
+            gsap.to("#poster-pegado", {
+                scale: 1,
+                opacity: 1,
+                rotation: -3,
+                duration: 0.8,
+                ease: "back.out(1.5)",
+                scrollTrigger: {
+                    trigger: "#reclutamiento-section",
+                    start: "top 60%"
+                }
+            });
+
+            gsap.fromTo(".gs-reveal-poster", 
+                { x: 50, opacity: 0 }, 
+                {
+                    x: 0, opacity: 1, duration: 1, ease: "power3.out", delay: 0.2,
+                    scrollTrigger: {
+                        trigger: "#reclutamiento-section",
+                        start: "top 60%"
+                    }
+                }
+            );
+
+            // Cargar datos desde Supabase
+            async function cargarDestacados() {
+                try {
+                    const client = (typeof _supabase !== 'undefined') ? _supabase : supabase;
+                    const { data } = await client.from('inventario').select('*').eq('estatus', 'Disponible').order('creado_el', { ascending: false }).limit(3);
+                    
+                    if (data && data.length > 0) {
+                        const container = document.getElementById('grid-destacados');
+                        container.innerHTML = data.map((carro) => {
+                            let fotoFinal = 'https://placehold.co/800x600?text=Auto';
+                            if (carro.fotos && carro.fotos.length > 0) {
+                                fotoFinal = carro.fotos[0].startsWith('http') ? carro.fotos[0] : `${CONFIG.SUPABASE_URL}/storage/v1/object/public/autos/${carro.fotos[0]}`;
+                            }
+                            return `
+                            <div onclick="window.location.href='detalle.html?id=${carro.id}'" class="group cursor-pointer">
+                                <div class="relative h-[400px] md:h-[450px] rounded-[30px] md:rounded-[40px] overflow-hidden mb-6 shadow-[0_20px_40px_rgba(0,0,0,0.08)] bg-gray-100 border border-gray-100">
+                                    <img src="${fotoFinal}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
+                                    <div class="absolute bottom-8 left-8 right-8">
+                                        <p class="text-[#ff8801] font-black text-[10px] uppercase tracking-widest mb-1">${carro.anio} • ${carro.transmision || 'Auto'}</p>
+                                        <h3 class="text-white text-3xl md:text-4xl font-title font-black uppercase italic leading-none tracking-tighter">${carro.marca} <br> <span class="text-gray-300">${carro.modelo}</span></h3>
+                                    </div>
+                                </div>
+                            </div>`;
+                        }).join('');
+                    }
+                } catch (e) { console.error("Error cargando recientes:", e); }
+            }
+            cargarDestacados();
+        });
+    </script>
+</body>
+</html>

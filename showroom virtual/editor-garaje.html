@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Multiamerica - Editor Visual Completo</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #111; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: white; }
+        
+        #panel-izquierdo {
+            position: absolute; top: 15px; left: 15px; width: 320px;
+            background: rgba(15, 15, 20, 0.9); padding: 20px; border-radius: 12px;
+            border: 1px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            pointer-events: auto;
+        }
+        
+        h2 { margin-top: 0; color: #00AAFF; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; }
+        .dato { font-family: monospace; color: #00ff00; font-size: 14px; margin: 8px 0; background: #000; padding: 5px; border-radius: 4px;}
+        .etiqueta { color: #aaa; font-size: 12px; }
+        
+        /* Modificado a 3 columnas para incluir el botón de rotar */
+        .botones-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
+        button {
+            background: #333; color: white; border: 1px solid #555; padding: 8px 5px;
+            border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; font-size: 13px;
+        }
+        button:hover { background: #444; border-color: #00AAFF; }
+        button.activo { background: #00AAFF; color: black; border-color: #00AAFF; }
+        
+        #btn-exportar { background: #FF8801; color: black; width: 100%; margin-top: 15px; border: none; font-size: 15px; padding: 12px;}
+        #btn-exportar:hover { background: #ff9e33; }
+
+        #instrucciones {
+            position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 20px;
+            font-size: 13px; color: #ccc; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="panel-izquierdo">
+        <h2>Editor de Garaje</h2>
+        <p style="font-size: 12px; color: #aaa; margin-bottom: 15px;">Haz clic en un carro para seleccionarlo.</p>
+        
+        <div style="margin-bottom: 15px;">
+            <span class="etiqueta">MODELO SELECCIONADO:</span><br>
+            <span id="ui-modelo" style="color: #FF8801; font-weight: bold;">Ninguno</span>
+        </div>
+
+        <div class="dato"><span class="etiqueta">X (Pos): </span> <span id="ui-x">0.00</span></div>
+        <div class="dato"><span class="etiqueta">Z (Pos): </span> <span id="ui-z">0.00</span></div>
+        <div class="dato"><span class="etiqueta">Y (OffsetY): </span> <span id="ui-y">0.00</span></div>
+        <div class="dato"><span class="etiqueta">Rotación (Y): </span> <span id="ui-rot">0.00</span></div>
+        <div class="dato"><span class="etiqueta">Escala: </span> <span id="ui-escala">1.00</span></div>
+
+        <div class="botones-grid">
+            <button id="btn-mover" class="activo">Mover</button>
+            <button id="btn-rotar">Rotar</button>
+            <button id="btn-escalar">Escalar</button>
+        </div>
+
+        <button id="btn-exportar">IMPRIMIR CONFIGURACIÓN</button>
+    </div>
+
+    <div id="instrucciones">
+        <b>Click Izquierdo:</b> Rotar Cámara | <b>Click Derecho:</b> Mover Cámara | <b>Rueda:</b> Zoom
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/examples/jsm/controls/OrbitControls.js": "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js",
+            "three/examples/jsm/controls/TransformControls.js": "https://unpkg.com/three@0.160.0/examples/jsm/controls/TransformControls.js",
+            "three/examples/jsm/loaders/GLTFLoader.js": "https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js"
+        }
+    }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+        import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+        import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+        import { CONFIG } from './js/config.js';
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(8, 10, -5);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.ReinhardToneMapping;
+        renderer.toneMappingExposure = 2.0;
+        document.body.appendChild(renderer.domElement);
+
+        scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+        const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+        sun.position.set(-5, 30, -30);
+        scene.add(sun);
+
+        const gridHelper = new THREE.GridHelper(50, 50, 0x444444, 0x222222);
+        gridHelper.position.y = 0.01; 
+        scene.add(gridHelper);
+
+        const orbitControls = new OrbitControls(camera, renderer.domElement);
+        orbitControls.target.set(8, 0, -20);
+        orbitControls.update();
+
+        const transformControl = new TransformControls(camera, renderer.domElement);
+        transformControl.addEventListener('dragging-changed', (event) => {
+            orbitControls.enabled = !event.value;
+        });
+        scene.add(transformControl);
+
+        const loader = new GLTFLoader();
+        const carrosEditables = []; 
+
+        loader.load(`./models/${CONFIG.archivos.garaje}`, (gltf) => {
+            const garaje = gltf.scene;
+            garaje.traverse(child => { if(child.isMesh) child.userData.esFondo = true; });
+            scene.add(garaje);
+        });
+
+        CONFIG.puestosGaraje.forEach((p) => {
+            const archivo = p.modelo || CONFIG.archivos.defaultVehiculo;
+            loader.load(`./models/${archivo}`, (gltf) => {
+                const auto = gltf.scene;
+                
+                const s = p.escala || 1.0;
+                auto.scale.set(s, s, s);
+                
+                const y = p.offsetY || 0;
+                auto.position.set(p.x, y, p.z);
+                auto.rotation.y = p.rot;
+                
+                auto.userData = { 
+                    esCarro: true, 
+                    modelo: p.modelo
+                };
+                
+                scene.add(auto);
+                carrosEditables.push(auto);
+            });
+        });
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let carroSeleccionado = null;
+
+        const uiModelo = document.getElementById('ui-modelo');
+        const uiX = document.getElementById('ui-x');
+        const uiZ = document.getElementById('ui-z');
+        const uiY = document.getElementById('ui-y');
+        const uiRot = document.getElementById('ui-rot');
+        const uiEscala = document.getElementById('ui-escala');
+
+        window.addEventListener('pointerdown', (event) => {
+            if(event.clientX < 350 && event.clientY < 400) return;
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(carrosEditables, true);
+
+            if (intersects.length > 0) {
+                let obj = intersects[0].object;
+                while (obj.parent && !obj.userData.esCarro) {
+                    obj = obj.parent;
+                }
+
+                if (obj.userData.esCarro) {
+                    carroSeleccionado = obj;
+                    transformControl.attach(carroSeleccionado);
+                    uiModelo.innerText = obj.userData.modelo;
+                    actualizarUI();
+                }
+            } else if (!transformControl.dragging) {
+                transformControl.detach();
+                carroSeleccionado = null;
+                uiModelo.innerText = "Ninguno";
+                uiX.innerText = "0.00"; uiZ.innerText = "0.00"; uiY.innerText = "0.00"; uiRot.innerText = "0.00"; uiEscala.innerText = "1.00";
+            }
+        });
+
+        transformControl.addEventListener('change', actualizarUI);
+
+        function actualizarUI() {
+            if (carroSeleccionado) {
+                uiX.innerText = carroSeleccionado.position.x.toFixed(2);
+                uiZ.innerText = carroSeleccionado.position.z.toFixed(2);
+                uiY.innerText = carroSeleccionado.position.y.toFixed(2);
+                uiRot.innerText = carroSeleccionado.rotation.y.toFixed(2); // Muestra la rotación actualizada
+                uiEscala.innerText = carroSeleccionado.scale.x.toFixed(3); 
+            }
+        }
+
+        const btnMover = document.getElementById('btn-mover');
+        const btnRotar = document.getElementById('btn-rotar');
+        const btnEscalar = document.getElementById('btn-escalar');
+        const btnExportar = document.getElementById('btn-exportar');
+
+        btnMover.addEventListener('click', () => {
+            transformControl.setMode('translate');
+            btnMover.classList.add('activo');
+            btnRotar.classList.remove('activo');
+            btnEscalar.classList.remove('activo');
+        });
+
+        btnRotar.addEventListener('click', () => {
+            transformControl.setMode('rotate');
+            btnRotar.classList.add('activo');
+            btnMover.classList.remove('activo');
+            btnEscalar.classList.remove('activo');
+        });
+
+        btnEscalar.addEventListener('click', () => {
+            transformControl.setMode('scale');
+            btnEscalar.classList.add('activo');
+            btnMover.classList.remove('activo');
+            btnRotar.classList.remove('activo');
+        });
+
+        btnExportar.addEventListener('click', () => {
+            let configString = "puestosGaraje: [\n";
+            
+            carrosEditables.forEach((c, index) => {
+                const modelo = c.userData.modelo;
+                const x = c.position.x.toFixed(2);
+                const y = c.position.y.toFixed(2); 
+                const z = c.position.z.toFixed(2);
+                const rot = c.rotation.y.toFixed(2); // Ahora captura la rotación real del modelo en escena
+                const esc = c.scale.x.toFixed(3);
+
+                let prefix = "    ";
+                if (index === 0) prefix += "// --- FILA DERECHA ---\n    ";
+                if (index === 5) prefix += "\n    // --- FILA IZQUIERDA ---\n    ";
+
+                configString += `${prefix}{ x: ${x}, z: ${z}, rot: ${rot}, modelo: '${modelo}', escala: ${esc}, offsetY: ${y} },\n`;
+            });
+            
+            configString += "]";
+            
+            console.log("%c🚗 COPIA ESTO EN TU CONFIG.JS:", "color:#00AAFF; font-size:16px; font-weight:bold;");
+            console.log(configString);
+            alert("¡Configuración generada!\nAbre la consola (F12) para copiar el código.");
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

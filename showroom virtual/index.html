@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Multiamerica Vehículos 3D</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #000; }
+        
+        #hud {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; color: white; background: rgba(0, 0, 0, 0.8);
+            padding: 30px; border-radius: 10px; pointer-events: none; border: 1px solid #333;
+        }
+
+        /* El punto de mira en el centro de la pantalla */
+        #reticula {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 6px; height: 6px; background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%; pointer-events: none; z-index: 10;
+        }
+
+        /* La tarjeta de información del vehículo */
+        #panel-vehiculo {
+            display: none; position: absolute; bottom: 40px; right: 40px;
+            background: rgba(15, 15, 20, 0.95); border-left: 4px solid #00AAFF;
+            padding: 20px; border-radius: 8px; color: white; width: 280px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); pointer-events: none;
+        }
+        #panel-vehiculo h2 { margin: 0 0 5px 0; color: #fff; font-size: 22px; }
+        #panel-vehiculo .ano { color: #aaa; font-size: 14px; margin-bottom: 15px; display: block; }
+        #panel-vehiculo .precio { color: #00ff00; font-size: 24px; font-weight: bold; margin: 0; }
+    </style>
+</head>
+<body>
+    <div id="hud">
+        <h1 style="color: #00AAFF; margin-top: 0;">MULTIAMERICA VEHÍCULOS</h1>
+        <p>Haz clic en la pantalla para comenzar</p>
+        <p style="font-size: 13px; color:#aaa">Usa WASD para moverte. Apunta a los vehículos para ver sus detalles.</p>
+    </div>
+
+    <div id="reticula"></div>
+
+    <div id="panel-vehiculo">
+        <h2 id="v-nombre">Modelo</h2>
+        <span class="ano" id="v-ano">Año</span>
+        <p class="precio" id="v-precio">$0</p>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/examples/jsm/controls/PointerLockControls.js": "https://unpkg.com/three@0.160.0/examples/jsm/controls/PointerLockControls.js",
+            "three/examples/jsm/loaders/GLTFLoader.js": "https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js"
+        }
+    }
+    </script>
+    <script type="module" src="./js/main.js"></script>
+</body>
+</html>

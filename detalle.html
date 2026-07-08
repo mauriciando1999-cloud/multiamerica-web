@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargando Nave... | Multiamerica</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
+    <script src="public-db.js"></script>
+    
+    <style>
+        :root { --brand-orange: #ff8801; } 
+        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; color: #111; }
+        .font-title { font-family: 'Montserrat', sans-serif; }
+        
+        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .btn-ws { background: #25D366; box-shadow: 0 10px 25px -5px rgba(37, 211, 102, 0.3); }
+        .btn-ws:hover { background: #1ebd5c; transform: translateY(-2px); box-shadow: 0 15px 30px -5px rgba(37, 211, 102, 0.4); }
+        
+        .text-brand { color: var(--brand-orange); }
+        .bg-brand-light { background-color: rgba(255, 136, 1, 0.1); }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .suggestion-card { min-width: 280px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .suggestion-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08); border-color: var(--brand-orange); }
+    </style>
+</head>
+<body class="pb-10">
+
+    <nav class="sticky top-0 z-50 glass px-6 py-4 flex justify-between items-center transition-all">
+        <button onclick="history.back()" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:text-[#ff8801] transition-colors bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm">
+            <i class="fa-solid fa-arrow-left"></i> Volver
+        </button>
+        <h1 class="text-sm font-title font-black tracking-tighter uppercase italic">MULTI<span class="text-brand">AMERICA</span></h1>
+    </nav>
+
+    <main id="detalle-content" class="max-w-6xl mx-auto px-4 md:px-6 py-8">
+        <div id="loader" class="animate-pulse space-y-8">
+            <div class="h-[400px] md:h-[500px] bg-gray-200 rounded-[40px]"></div>
+            <div class="grid grid-cols-4 gap-4"><div class="h-24 bg-gray-200 rounded-3xl col-span-1"></div></div>
+        </div>
+    </main>
+
+    <section class="max-w-6xl mx-auto px-4 md:px-6 mt-16">
+        <h2 class="text-[10px] font-black uppercase tracking-[0.3em] mb-6 text-gray-400 italic">Otras unidades disponibles</h2>
+        <div id="sugerencias-grid" class="flex gap-6 overflow-x-auto pb-8 no-scrollbar snap-x">
+        </div>
+    </section>
+
+    <script>
+        const currency = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.CONFIG && CONFIG.COLOR_PRIMARIO) {
+                document.documentElement.style.setProperty('--brand-orange', CONFIG.COLOR_PRIMARIO);
+            }
+            cargarDetalle();
+        });
+
+        function getFotoUrl(path, fallback = 'https://placehold.co/800x600/eeeeee/999999?text=Sin+Foto') {
+            if (!path) return fallback;
+            return path.startsWith('http') ? path : `${CONFIG.SUPABASE_URL}/storage/v1/object/public/autos/${path}`;
+        }
+
+        async function cargarDetalle() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            if (!id) { window.location.href = 'index.html'; return; }
+
+            try {
+                // 1. Cargar Vehículo Principal
+                const { data: carro, error } = await _supabase.from('inventario').select('*').eq('id', id).single();
+                if (error || !carro) throw error;
+                renderDetalle(carro);
+
+                // 2. Cargar Sugerencias
+                const { data: sugerencias } = await _supabase
+                    .from('inventario')
+                    .select('id, marca, modelo, anio, precio_venta, fotos')
+                    .neq('id', id) 
+                    .neq('estatus', 'Vendido') // Solo mostrar disponibles
+                    .or(`marca.ilike.%${carro.marca}%,anio.eq.${carro.anio}`)
+                    .limit(6);
+
+                if (sugerencias) renderSugerencias(sugerencias);
+
+            } catch (e) {
+                console.error(e);
+                document.getElementById('detalle-content').innerHTML = `
+                    <div class="text-center py-32">
+                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6"><i class="fa-solid fa-car-burst text-gray-300 text-3xl"></i></div>
+                        <h2 class="text-2xl font-title font-black uppercase italic text-gray-400">Nave no encontrada</h2>
+                        <p class="text-xs text-gray-400 mt-2 tracking-widest uppercase">Es posible que haya sido vendida o retirada.</p>
+                    </div>`;
+            }
+        }
+
+        function renderDetalle(carro) {
+            const container = document.getElementById('detalle-content');
+            document.title = `${carro.marca} ${carro.modelo} | MULTIAMERICA`;
+
+            // Validación de fotos segura
+            const fotosArray = Array.isArray(carro.fotos) && carro.fotos.length > 0 ? carro.fotos : [null];
+
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+                    
+                    <div class="lg:col-span-7 space-y-4 sticky top-24">
+                        <div class="relative rounded-[32px] md:rounded-[48px] overflow-hidden shadow-xl bg-white border border-gray-100">
+                            <img id="main-img" src="${getFotoUrl(fotosArray[0])}" class="w-full aspect-[4/3] object-cover transition-opacity duration-300">
+                        </div>
+                        
+                        ${fotosArray.length > 1 ? `
+                        <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                            ${fotosArray.map(f => `
+                                <img src="${getFotoUrl(f)}" onclick="document.getElementById('main-img').src='${getFotoUrl(f)}'" 
+                                    class="w-24 h-20 rounded-2xl object-cover cursor-pointer border-2 border-transparent hover:border-[#ff8801] transition-all opacity-60 hover:opacity-100">
+                            `).join('')}
+                        </div>` : ''}
+                    </div>
+
+                    <div class="lg:col-span-5 flex flex-col justify-center">
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="px-4 py-1.5 rounded-full bg-brand-light text-brand text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-[#ff8801] animate-pulse"></span> DISPONIBLE
+                            </span>
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Stock: ${carro.anio || 'N/A'}</span>
+                        </div>
+                        
+                        <h1 class="text-5xl md:text-6xl font-title font-black italic uppercase leading-[0.9] tracking-tighter text-black">
+                            ${carro.marca} <br> <span class="text-gray-400">${carro.modelo}</span>
+                        </h1>
+                        
+                        <div class="mt-8 pb-8 border-b border-gray-100">
+                            <span class="text-5xl font-title font-black text-brand tracking-tighter">${currency.format(carro.precio_venta || 0)}</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+                            <div class="bg-white border border-gray-100 p-4 rounded-3xl shadow-sm flex flex-col items-center text-center justify-center">
+                                <i class="fa-solid fa-calendar-days text-gray-300 text-lg mb-2"></i>
+                                <p class="text-[8px] font-black text-gray-400 uppercase tracking-widest">Año</p>
+                                <p class="text-xs font-bold mt-1">${carro.anio || 'N/A'}</p>
+                            </div>
+                            <div class="bg-white border border-gray-100 p-4 rounded-3xl shadow-sm flex flex-col items-center text-center justify-center">
+                                <i class="fa-solid fa-gauge-high text-gray-300 text-lg mb-2"></i>
+                                <p class="text-[8px] font-black text-gray-400 uppercase tracking-widest">Recorrido</p>
+                                <p class="text-xs font-bold mt-1">${carro.kilometraje?.toLocaleString() || 0} KM</p>
+                            </div>
+                            <div class="bg-white border border-gray-100 p-4 rounded-3xl shadow-sm flex flex-col items-center text-center justify-center">
+                                <i class="fa-solid fa-gear text-gray-300 text-lg mb-2"></i>
+                                <p class="text-[8px] font-black text-gray-400 uppercase tracking-widest">Transm.</p>
+                                <p class="text-[10px] font-bold mt-1 uppercase truncate w-full">${carro.transmision || 'S/D'}</p>
+                            </div>
+                            <div class="bg-white border border-gray-100 p-4 rounded-3xl shadow-sm flex flex-col items-center text-center justify-center">
+                                <i class="fa-solid fa-palette text-gray-300 text-lg mb-2"></i>
+                                <p class="text-[8px] font-black text-gray-400 uppercase tracking-widest">Color</p>
+                                <p class="text-[10px] font-bold mt-1 uppercase truncate w-full">${carro.color || 'N/A'}</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-10 bg-white border border-gray-100 p-6 rounded-[32px] shadow-sm">
+                            <h3 class="text-[10px] font-black uppercase tracking-[0.2em] mb-3 text-gray-400">Descripción Técnica</h3>
+                            <p class="text-gray-600 leading-relaxed text-sm">${carro.descripcion || 'Sin detalles adicionales registrados en el sistema.'}</p>
+                        </div>
+
+                        <button onclick="preguntar('${carro.marca} ${carro.modelo}', '${carro.id}')" 
+                            class="btn-ws w-full mt-8 py-5 rounded-[24px] text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all">
+                            <i class="fa-brands fa-whatsapp text-lg"></i> Consultar Asesor ➔
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderSugerencias(lista) {
+            const grid = document.getElementById('sugerencias-grid');
+            if (lista.length === 0) {
+                grid.parentElement.style.display = 'none';
+                return;
+            }
+
+            grid.innerHTML = lista.map(s => `
+                <div class="suggestion-card snap-start bg-white border border-gray-100 rounded-[32px] p-2 cursor-pointer shadow-sm" 
+                     onclick="window.location.href='detalle.html?id=${s.id}'">
+                    <img src="${getFotoUrl(s.fotos?.[0], 'https://placehold.co/400x300/eeeeee/999999?text=Sin+Foto')}" class="w-full aspect-video object-cover rounded-[26px] mb-4">
+                    <div class="px-4 pb-4">
+                        <p class="text-[9px] font-black text-brand uppercase tracking-widest">${s.anio || 'N/A'}</p>
+                        <h4 class="font-title font-black text-lg uppercase italic truncate leading-tight mt-1">${s.marca} ${s.modelo}</h4>
+                        <p class="font-bold text-gray-400 text-sm mt-2">${currency.format(s.precio_venta || 0)}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function preguntar(auto, id) {
+    window.location.href = `chatia.html?id=${id}`;
+}
+    </script>
+</body>
+</html>

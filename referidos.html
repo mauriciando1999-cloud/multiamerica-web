@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Programa de Referidos | Multiamerica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@1,900&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet"/>
+
+    <style>
+        body { background-color: #FFFFFF; color: #111; font-family: 'Montserrat', sans-serif; }
+        .font-epilogue { font-family: 'Epilogue', sans-serif; }
+        .text-orange-envolvia { color: #FF8801; }
+        .glass-card { background: white; border: 1px solid #f0f0f0; border-radius: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.02); }
+        input, select { background: #f9fafb; border: 2px solid transparent; border-radius: 16px; padding: 16px; font-weight: 700; font-size: 12px; outline: none; transition: all 0.3s; }
+        input:focus { border-color: #FF8801; background: white; }
+    </style>
+</head>
+<body class="pb-20">
+
+    <header class="max-w-[1200px] mx-auto p-8 flex justify-between items-center">
+        <a href="inventario.html" class="w-12 h-12 flex items-center justify-center rounded-2xl border border-gray-100 hover:bg-black hover:text-white transition-all">
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        <h1 class="text-2xl font-epilogue font-black italic uppercase italic">Multiamerica <span class="text-orange-envolvia">Partners</span></h1>
+    </header>
+
+    <main class="max-w-[1200px] mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 mt-12">
+        
+        <div class="space-y-8">
+            <div>
+                <span class="bg-orange-50 text-orange-envolvia px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Gana Comisiones</span>
+                <h2 class="text-6xl font-epilogue font-black italic uppercase leading-none mt-6">Tu red es <span class="text-orange-envolvia">dinero.</span></h2>
+                <p class="text-gray-400 mt-6 text-sm leading-relaxed">Refiere a un cliente interesado en comprar o vender su vehículo y obtén una comisión directa al concretarse la operación. Sin trámites complicados.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-card p-6">
+                    <i class="fa-solid fa-car-side text-2xl mb-4 text-orange-envolvia"></i>
+                    <h4 class="font-black uppercase text-xs">Por Venta</h4>
+                    <p class="text-[10px] text-gray-400 mt-2">Trae al comprador y gana un porcentaje de la utilidad.</p>
+                </div>
+                <div class="glass-card p-6">
+                    <i class="fa-solid fa-file-signature text-2xl mb-4 text-orange-envolvia"></i>
+                    <h4 class="font-black uppercase text-xs">Por Consignación</h4>
+                    <p class="text-[10px] text-gray-400 mt-2">Trae el vehículo para nuestro inventario y gana al venderse.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-card p-10">
+            <h3 class="text-xl font-black uppercase italic mb-8 border-b pb-4">Registrar Prospecto</h3>
+            
+            <form id="form-referido" class="flex flex-col gap-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[9px] font-black uppercase text-gray-400 ml-2">Tu Nombre (Afiliado)</label>
+                        <input type="text" id="nombre_afiliado" placeholder="Ej. Pedro Pérez" required>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <label class="text-[9px] font-black uppercase text-gray-400 ml-2">Tu Teléfono</label>
+                        <input type="tel" id="telefono_afiliado" placeholder="+58 414..." required>
+                    </div>
+                </div>
+
+                <hr class="my-4 opacity-50">
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-[9px] font-black uppercase text-gray-400 ml-2">Nombre del Cliente Referido</label>
+                    <input type="text" id="nombre_cliente" placeholder="¿A quién refieres?" required>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-[9px] font-black uppercase text-gray-400 ml-2">Vehículo de Interés (Opcional)</label>
+                    <input type="text" id="vehiculo_interes" placeholder="Ej. Toyota 4Runner 2022">
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-[9px] font-black uppercase text-gray-400 ml-2">Tipo de Negocio</label>
+                    <select id="tipo_referido">
+                        <option value="Venta">Quiere Comprar (Venta)</option>
+                        <option value="Consignacion">Quiere Vender (Consignación)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="mt-6 bg-black text-white py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-orange-envolvia transition-all shadow-xl shadow-black/10">
+                    Enviar Referido <i class="fa-solid fa-paper-plane ml-2"></i>
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        const _supabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+
+        document.getElementById('form-referido').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Procesando...`;
+            btn.disabled = true;
+
+            const datos = {
+                nombre_afiliado: document.getElementById('nombre_afiliado').value,
+                telefono_afiliado: document.getElementById('telefono_afiliado').value,
+                nombre_cliente: document.getElementById('nombre_cliente').value,
+                vehiculo_interes: document.getElementById('vehiculo_interes').value,
+                tipo_referido: document.getElementById('tipo_referido').value,
+                estatus: 'Pendiente'
+            };
+
+            try {
+                // Necesitas crear esta tabla 'referidos' en tu Supabase
+                const { error } = await _supabase.from('referidos').insert([datos]);
+                if (error) throw error;
+
+                alert("¡Referido registrado con éxito! Nos comunicaremos contigo pronto.");
+                e.target.reset();
+
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                btn.innerHTML = `Enviar Referido <i class="fa-solid fa-paper-plane ml-2"></i>`;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

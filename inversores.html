@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Inversiones | Multiamerica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@1,900&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet"/>
+
+    <style>
+        body { background-color: #030712; color: #ffffff; font-family: 'Montserrat', sans-serif; }
+        .font-epilogue { font-family: 'Epilogue', sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 32px; backdrop-filter: blur(10px); }
+        input { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 16px; color: white; font-weight: 700; outline: none; width: 100%; transition: all 0.3s; }
+        input:focus { border-color: #22c55e; background: rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="pb-20">
+
+    <header class="max-w-[1200px] mx-auto p-8 flex justify-between items-center">
+        <a href="index.html" class="w-12 h-12 flex items-center justify-center rounded-2xl border border-white/10 hover:bg-white hover:text-black transition-all">
+            <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        <h1 class="text-xl font-epilogue font-black italic uppercase">MULTI<span class="text-green-500">INVEST</span></h1>
+    </header>
+
+    <main class="max-w-[1000px] mx-auto px-8 mt-12">
+        <div class="text-center mb-16">
+            <span class="text-green-500 font-mono text-[10px] tracking-[0.4em] uppercase">Capital Growth Program</span>
+            <h2 class="text-5xl md:text-7xl font-epilogue font-black italic uppercase mt-4 leading-none">Haz crecer tu <span class="text-green-500">patrimonio.</span></h2>
+            <p class="text-gray-500 mt-6 max-w-2xl mx-auto">Participa en la compra de inventario de oportunidad y obtén rendimientos competitivos respaldados por activos tangibles.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="glass-card p-8 text-center">
+                <i class="fa-solid fa-shield-halved text-3xl text-green-500 mb-4"></i>
+                <h4 class="font-black text-xs uppercase mb-2">Garantía Real</h4>
+                <p class="text-[10px] text-gray-500 leading-relaxed">Tu inversión está respaldada por el título de propiedad del vehículo.</p>
+            </div>
+            <div class="glass-card p-8 text-center">
+                <i class="fa-solid fa-bolt text-3xl text-green-500 mb-4"></i>
+                <h4 class="font-black text-xs uppercase mb-2">Alta Rotación</h4>
+                <p class="text-[10px] text-gray-500 leading-relaxed">Seleccionamos modelos comerciales para asegurar retornos rápidos.</p>
+            </div>
+            <div class="glass-card p-8 text-center">
+                <i class="fa-solid fa-eye text-3xl text-green-500 mb-4"></i>
+                <h4 class="font-black text-xs uppercase mb-2">Transparencia</h4>
+                <p class="text-[10px] text-gray-500 leading-relaxed">Monitorea el estatus de venta de la unidad en tiempo real.</p>
+            </div>
+        </div>
+
+        <div class="glass-card p-10 max-w-2xl mx-auto">
+            <h3 class="text-xl font-black uppercase italic mb-8 text-center">Solicitar Información</h3>
+            <form id="form-inversion" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="nombre" placeholder="Nombre Completo" required>
+                    <input type="tel" id="telefono" placeholder="WhatsApp" required>
+                </div>
+                <input type="email" id="email" placeholder="Correo Electrónico" required>
+                <input type="number" id="capital" placeholder="Capital estimado a invertir (USD)" required>
+                
+                <button type="submit" class="w-full bg-green-600 text-white py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] hover:bg-green-500 transition-all mt-4">
+                    Enviar Propuesta de Inversión
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        const _supabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+
+        document.getElementById('form-inversion').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Enviando...`;
+            btn.disabled = true;
+
+            const datos = {
+                nombre: document.getElementById('nombre').value,
+                telefono: document.getElementById('telefono').value,
+                email: document.getElementById('email').value,
+                capital_estimado: document.getElementById('capital').value,
+                estatus: 'Nuevo Prospecto'
+            };
+
+            try {
+                // Crear tabla 'prospectos_inversores' en Supabase
+                const { error } = await _supabase.from('prospectos_inversores').insert([datos]);
+                if (error) throw error;
+
+                alert("Gracias. Un asesor financiero de Multiamerica se pondrá en contacto contigo para presentarte las oportunidades actuales.");
+                e.target.reset();
+            } catch (err) {
+                alert("Error al procesar: " + err.message);
+            } finally {
+                btn.innerHTML = `Enviar Propuesta de Inversión`;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consignación | Multiamerica Vehiculos</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; overflow-x: hidden; margin: 0; }
+        
+        #gladiator-viewport {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            z-index: 1; pointer-events: none;
+        }
+
+        .interface-layer {
+            position: relative; z-index: 10; min-height: 100vh;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 2rem;
+            background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.6) 100%);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 2rem;
+            border-radius: 32px;
+        }
+
+        .text-primary { color: #ff8801; }
+        .bg-primary { background-color: #ff8801; }
+
+        /* Inputs Mejorados */
+        .input-group { position: relative; margin-bottom: 1rem; }
+        
+        .input-field {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 2px solid transparent !important;
+            padding: 12px 16px !important;
+            color: #111 !important;
+            border-radius: 12px;
+            width: 100%;
+            transition: 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .input-field:focus {
+            border-color: #ff8801 !important;
+            background: #fff !important;
+        }
+
+        /* Caja de Fotos */
+        .photo-box {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.03);
+        }
+        .photo-box:hover {
+            border-color: #ff8801;
+            background: rgba(255, 136, 1, 0.05);
+        }
+
+        label {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .btn-submit {
+            background: #ff8801; color: #fff; padding: 16px;
+            font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
+            font-size: 12px; width: 100%; border-radius: 14px; transition: 0.3s;
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255, 136, 1, 0.3); }
+
+        .reveal { opacity: 0; transform: translateY(30px); }
+    </style>
+</head>
+<body>
+
+    <div id="gladiator-viewport"></div>
+
+    <div class="interface-layer">
+        
+        <div class="flex justify-between items-center reveal">
+            <h2 class="text-2xl font-black italic uppercase">MULTI<span class="text-primary">AMERICA VEHICULOS</span></h2>
+            <a href="index.html" class="text-[10px] font-bold opacity-60 uppercase border-b border-white/20">Volver</a>
+        </div>
+
+        <div class="grid lg:grid-cols-[1fr,480px] gap-12 items-center py-6">
+            
+            <div class="space-y-6 reveal">
+                <h1 class="text-5xl lg:text-7xl font-extrabold leading-tight">Vende con <br><span class="text-primary">Tranquilidad.</span></h1>
+                <p id="audio-text" class="text-lg opacity-80 leading-relaxed max-w-xl">
+                    Consignar en Multiamerica es delegar el trabajo pesado a expertos. Nos encargamos de la promoción HD, filtramos prospectos y cerramos la venta de forma segura.
+                </p>
+                <button class="audio-btn" id="btn-audio">
+                    <span class="text-xs font-bold uppercase tracking-widest" id="audio-status">🔊 Escuchar proceso</span>
+                </button>
+            </div>
+
+            <div class="glass-panel reveal">
+                <form id="form-consignacion" class="space-y-4">
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label>Propietario</label>
+            <input type="text" id="c-nombre" class="input-field" placeholder="Nombre" required>
+        </div>
+        <div>
+            <label>Teléfono</label>
+            <input type="tel" id="c-telefono" class="input-field" placeholder="+58..." required>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label>Vehículo</label>
+            <input type="text" id="c-vehiculo" class="input-field" placeholder="Ej: Jeep Wrangler" required>
+        </div>
+        <div>
+            <label>Año</label>
+            <input type="number" id="c-ano" class="input-field" placeholder="2024">
+        </div>
+    </div>
+
+    <div>
+        <label>Fotos (Opcional)</label>
+        <div class="photo-box" id="drop-area">
+            <p class="text-[10px] uppercase font-bold text-white/40" id="file-name">Click para subir o arrastrar fotos</p>
+            <input type="file" id="file-input" class="hidden" multiple accept="image/*">
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+        <div>
+            <label>Kilometraje</label>
+            <input type="number" id="c-km" class="input-field" placeholder="KM">
+        </div>
+        <div>
+            <label>Precio Ref ($)</label>
+            <input type="number" id="c-precio" class="input-field" placeholder="Valor esperado">
+        </div>
+    </div>
+
+    <button type="submit" class="btn-submit">Someter a Evaluación</button>
+</form>
+
+                <a href="https://wa.me/584123768312" class="btn-whatsapp flex items-center justify-center gap-2 mt-4 text-[10px] font-bold uppercase opacity-60 hover:opacity-100 transition-all">
+                    <span>O Hablar con Asesor</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="reveal flex justify-between opacity-30 text-[8px] font-black uppercase tracking-[0.4em] border-t border-white/10 pt-4">
+            <span>Multiamerica Vehiculos</span>
+            <span>Caracas, Venezuela</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+    <script src="public-db.js"></script>
+    <script src="gladiator-engine.js"></script>
+    
+    <script>
+    // Animación GSAP
+    window.addEventListener('load', () => {
+        gsap.to(".reveal", { opacity: 1, y: 0, stagger: 0.1, duration: 1, ease: "power4.out" });
+    });
+
+    // Lógica de archivos (UI)
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('file-input');
+    const fileNameLabel = document.getElementById('file-name');
+
+    dropArea.onclick = () => fileInput.click();
+    fileInput.onchange = () => {
+        const count = fileInput.files.length;
+        fileNameLabel.innerText = count > 0 ? `${count} archivos seleccionados` : "Click para subir fotos";
+        fileNameLabel.classList.add('text-primary');
+    };
+
+    // Lógica Supabase (Subida de Archivos y Datos)
+    const form = document.getElementById('form-consignacion');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const clienteSupabase = window._supabase || (window.CONFIG ? supabase.createClient(window.CONFIG.SUPABASE_URL, window.CONFIG.SUPABASE_KEY) : null);
+        
+        if (!clienteSupabase) return alert("Error: No se pudo conectar a la base de datos.");
+
+        const btn = form.querySelector('button');
+        btn.innerText = "PROCESANDO...";
+        btn.disabled = true;
+
+        try {
+            let fotosUrls = [];
+            
+            // 1. SUBIDA DE FOTOS
+            if (fileInput.files.length > 0) {
+                btn.innerText = "SUBIENDO FOTOS...";
+                for (const file of fileInput.files) {
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+                    
+                    const { error: uploadError } = await clienteSupabase.storage
+                        .from('autos')
+                        .upload(fileName, file);
+                        
+                    if (!uploadError) fotosUrls.push(fileName);
+                }
+            }
+
+            btn.innerText = "ASIGNANDO GERENTE...";
+
+            // 2. BUSCAR GERENTE AL AZAR desde la vista lista_gerentes
+            let nombreGerente = "Asesor Élite";
+            let tlfGerente = "584123768312"; 
+            
+            try {
+                // Consultamos a la nueva tabla/vista lista_gerentes
+                const { data: gerentes, error: errG } = await clienteSupabase
+                    .from('lista_gerentes')
+                    .select('nombre, apellido, whatsapp');
+
+                if (!errG && gerentes && gerentes.length > 0) {
+                    const elegido = gerentes[Math.floor(Math.random() * gerentes.length)];
+                    nombreGerente = `${elegido.nombre} ${elegido.apellido || ''}`.trim();
+                    tlfGerente = elegido.whatsapp || tlfGerente;
+                } else if (errG) {
+                    console.warn("Error consultando lista_gerentes:", errG.message);
+                }
+            } catch (err) {
+                console.warn("Ruteo automático falló, usando predeterminado.", err);
+            }
+
+            btn.innerText = "GUARDANDO REGISTRO...";
+
+            const payload = {
+                nombre: document.getElementById('c-nombre').value,
+                telefono: document.getElementById('c-telefono').value,
+                vehiculo: document.getElementById('c-vehiculo').value,
+                ano: parseInt(document.getElementById('c-ano').value) || 0,
+                km: parseInt(document.getElementById('c-km').value) || 0,
+                precio: parseInt(document.getElementById('c-precio').value) || 0,
+                fotos: fotosUrls, 
+                estatus: 'Pendiente de Revisión'
+            };
+
+            // INSERCIÓN BLINDADA
+            let { error: dbError } = await clienteSupabase
+                .from('consignaciones')
+                .insert([{ ...payload, vendedor_asignado: nombreGerente }]);
+
+            if (dbError && (dbError.message.includes("vendedor_asignado") || dbError.code === 'PGRST204')) {
+                console.warn("⚠️ Falta la columna 'vendedor_asignado' en Supabase. Guardando sin ese campo por ahora...");
+                const fallback = await clienteSupabase.from('consignaciones').insert([payload]);
+                dbError = fallback.error;
+            }
+
+            if (dbError) {
+                console.error("DETALLE DEL ERROR 400:", JSON.stringify(dbError, null, 2));
+                throw new Error(`Error BD: ${dbError.message || dbError.details || 'Revisa la consola.'}`);
+            }
+
+            alert(`¡Solicitud recibida! Hemos asignado tu caso al gerente: ${nombreGerente}.\n\nSerás redirigido a su WhatsApp para atención inmediata.`);
+            
+            form.reset();
+            fileNameLabel.innerText = "Click para subir fotos";
+            fileNameLabel.classList.remove('text-primary');
+
+            const mensajeWa = `Hola ${nombreGerente}, acabo de enviar una solicitud de consignación para mi ${payload.vehiculo} a través de la página web. Mi nombre es ${payload.nombre}.`;
+            window.location.href = `https://api.whatsapp.com/send/?phone=${tlfGerente.replace(/\D/g, '')}&text=${encodeURIComponent(mensajeWa)}`;
+
+        } catch (error) {
+            console.error("Excepción atrapada:", error);
+            alert(error.message || "Error al enviar. Intenta por WhatsApp.");
+        } finally {
+            btn.innerText = "Someter a Evaluación";
+            btn.disabled = false;
+        }
+    });
+
+    // Audio
+    const btnAudio = document.getElementById('btn-audio');
+    const audioFile = new Audio('./audio/explicacion-consignar.mp3'); 
+    btnAudio.onclick = () => {
+        if (!audioFile.paused) { audioFile.pause(); audioFile.currentTime = 0; }
+        else { audioFile.play(); }
+    };
+</script>
+</body>
+</html>

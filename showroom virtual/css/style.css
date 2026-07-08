@@ -1,0 +1,62 @@
+/* 1. Limpieza total de la pantalla */
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Evita que salgan barras de scroll */
+    background-color: #000; /* Fondo negro mientras carga */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* 2. El contenedor de Three.js */
+canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* 3. Estilo para el HUD (La interfaz de usuario) */
+#hud {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    background: rgba(0, 0, 0, 0.85); /* Fondo oscuro elegante */
+    padding: 40px;
+    border: 2px solid #FF8801; /* El naranja de Multiamerica */
+    border-radius: 20px;
+    text-align: center;
+    cursor: pointer;
+    backdrop-filter: blur(10px); /* Efecto de vidrio esmerilado */
+    box-shadow: 0 0 20px rgba(255, 136, 1, 0.3);
+    transition: all 0.3s ease;
+}
+
+#hud:hover {
+    box-shadow: 0 0 40px rgba(255, 136, 1, 0.6);
+    background: rgba(0, 0, 0, 0.95);
+}
+
+#hud h2 {
+    margin-top: 0;
+    letter-spacing: 5px;
+    color: #FF8801;
+}
+
+#hud p {
+    font-weight: 300;
+    opacity: 0.8;
+}
+
+/* 4. Punto de mira (Crosshair) */
+#crosshair {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none; /* Para que no interfiera con los clics */
+}

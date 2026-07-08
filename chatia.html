@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asesor IA | Multiamerica</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=Montserrat:ital,wght@1,900&display=swap" rel="stylesheet">
+    <script src="public-db.js"></script>
+
+    <style>
+        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        .font-title { font-family: 'Montserrat', sans-serif; }
+        .chat-container { flex: 1; overflow-y: auto; scroll-behavior: smooth; }
+        .msg-ia { background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 20px 20px 20px 4px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .msg-user { background-color: #ff8801; color: white; border-radius: 20px 20px 4px 20px; box-shadow: 0 4px 15px rgba(255,136,1,0.2); }
+    </style>
+</head>
+<body>
+
+    <header class="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between shadow-sm z-10">
+        <div class="flex items-center gap-4">
+            <button onclick="history.back()" class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-black transition-all">
+                <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div>
+                <h2 class="text-xl font-title italic uppercase leading-none mt-1">Asesor Online</h2>
+            </div>
+        </div>
+    </header>
+
+    <main class="chat-container p-4 md:p-8 max-w-4xl mx-auto w-full flex flex-col gap-6" id="chat-box"></main>
+
+    <footer class="bg-white border-t border-gray-100 p-4 z-10">
+        <div class="max-w-4xl mx-auto relative flex items-center">
+            <input type="text" id="user-input" placeholder="Escribe tu consulta aquí..." 
+                class="w-full bg-gray-50 border border-gray-200 rounded-full py-4 pl-6 pr-16 text-sm font-semibold outline-none focus:border-[#ff8801]">
+            <button onclick="enviarMensaje()" class="absolute right-2 w-10 h-10 bg-[#ff8801] text-white rounded-full flex items-center justify-center shadow-md">
+                <i class="fa-solid fa-paper-plane text-sm"></i>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const vehiculoId = urlParams.get('id');
+        const fromCart = urlParams.get('cart');
+        
+        let contextoAutos = []; 
+        let inventarioGlobal = [];
+        let historialMensajes = []; 
+
+        // Respuestas rápidas (Sin gastar IA)
+        const respuestasRapidas = {
+            "horario": "Abrimos de lunes a viernes de 9am a 5pm, y los sábados de 9am a 2pm. ¡Te esperamos en Quinta Crespo!",
+            "ubicacion": "Estamos ubicados en la Avenida Sur 4, Quinta Crespo, Caracas. Puedes llegar fácilmente entrando por la autopista hacia la Chevrolet.",
+            "consignacion": "¡Claro! Consignar con nosotros es sencillo: respetamos tu precio, solo agregamos un 5% de comisión, y ponemos a más de 60 expertos a publicitar tu vehículo para venderlo rápido. ¿Te gustaría traerlo para exhibirlo?",
+            "prueba": "Por seguridad y para garantizar que cada cliente reciba su unidad impecable, las pruebas de manejo se realizan una vez pagado el vehículo en su totalidad. Si algo sale raro en la prueba, devolvemos tu dinero al 100%."
+        };
+
+        function detectarRespuestaRapida(texto) {
+            const t = texto.toLowerCase();
+            if (t.includes("hora") || t.includes("abren") || t.includes("horario")) return respuestasRapidas.horario;
+            if (t.includes("ubicacion") || t.includes("donde") || t.includes("direccion")) return respuestasRapidas.ubicacion;
+            if (t.includes("consignar") || t.includes("vender mi carro")) return respuestasRapidas.consignacion;
+            if (t.includes("prueba") || t.includes("probar el carro")) return respuestasRapidas.prueba;
+            return null;
+        }
+
+        document.addEventListener("DOMContentLoaded", initChat);
+
+        async function initChat() {
+            try {
+                const client = typeof _supabase !== 'undefined' ? _supabase : supabase;
+                
+                const { data: stock } = await client.from('inventario')
+                    .select('marca, modelo, anio, precio_venta, kilometraje, color, transmision')
+                    .eq('estatus', 'Disponible');
+                if (stock) inventarioGlobal = stock;
+
+                if (vehiculoId) {
+                    const { data } = await client.from('inventario').select('*').eq('id', vehiculoId).single();
+                    if (data) contextoAutos = [data];
+                } else if (fromCart) {
+                    contextoAutos = JSON.parse(sessionStorage.getItem('carrito_multiamerica')) || [];
+                }
+                
+                await procesarRespuestaIA("¡Hola! Soy tu asesor en Multiamerica Vehículos. ¿Qué tienes en mente hoy?");
+            } catch (e) {
+                await procesarRespuestaIA("¡Hola! Bienvenido a Multiamerica. ¿En qué puedo ayudarte?");
+            }
+        }
+
+        async function procesarRespuestaIA(texto) {
+            // Dividir en burbujas si hay saltos de línea largos
+            const burbujas = texto.split('\n\n').filter(b => b.trim() !== "");
+            
+            for (const burbuja of burbujas) {
+                const idTyping = mostrarTyping();
+                
+                // Simular tiempo de escritura humano basado en la longitud
+                const tiempoEscritura = Math.max(800, Math.min(burbuja.length * 25, 2500)); 
+                await new Promise(resolve => setTimeout(resolve, tiempoEscritura));
+                
+                const typingEl = document.getElementById(idTyping);
+                if (typingEl) typingEl.remove();
+                
+                agregarMensajeIA(burbuja);
+            }
+        }
+
+        async function enviarMensaje() {
+            const input = document.getElementById('user-input');
+            const texto = input.value.trim();
+            if (!texto) return;
+
+            mostrarMensajeUsuario(texto);
+            historialMensajes.push({ role: "user", content: texto });
+            input.value = '';
+            
+            // Filtro rápido sin IA
+            const respuestaRapida = detectarRespuestaRapida(texto);
+            if (respuestaRapida) {
+                await procesarRespuestaIA(respuestaRapida);
+                return; 
+            }
+
+            const idTyping = mostrarTyping();
+
+            try {
+                const response = await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/chat-ia`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${CONFIG.SUPABASE_KEY}` },
+                    body: JSON.stringify({ 
+                        mensajes: historialMensajes, 
+                        contexto: contextoAutos,
+                        inventario: inventarioGlobal 
+                    })
+                });
+
+                const result = await response.json();
+                
+                const typingEl = document.getElementById(idTyping);
+                if(typingEl) typingEl.remove();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || "Error del servidor");
+                }
+                
+                if (result.respuesta) {
+                    await procesarRespuestaIA(result.respuesta);
+                    historialMensajes.push({ role: "assistant", content: result.respuesta });
+                } else {
+                    throw new Error("Respuesta vacía.");
+                }
+
+            } catch (error) {
+                const typingEl = document.getElementById(idTyping);
+                if(typingEl) typingEl.remove();
+                
+                const errorMsg = (error.message || "").toLowerCase();
+                
+                if (errorMsg.includes("high demand") || errorMsg.includes("high_demand") || errorMsg.includes("503") || errorMsg.includes("429")) {
+                    const mensajeContingencia = `Disculpa, en este momento nuestro showroom virtual tiene una alta afluencia de clientes y mi red está temporalmente saturada. 🏎️💨\n\nPara no hacerte esperar, un gerente de ventas está disponible para atenderte de inmediato:`;
+                    await procesarRespuestaIA(mensajeContingencia);
+                    
+                    document.getElementById('chat-box').insertAdjacentHTML('beforeend', `
+                        <div class="flex gap-4 max-w-[85%] mt-1 ml-12">
+                            <button onclick="window.open('https://wa.me/TUNUMERO', '_blank')" class="w-full bg-[#ff8801] text-white font-black uppercase tracking-widest text-[10px] py-3 px-6 rounded-xl flex items-center justify-center gap-2 hover:bg-black transition-all shadow-md">
+                                <i class="fa-brands fa-whatsapp text-lg"></i> Hablar con un Gerente
+                            </button>
+                        </div>`);
+                    scrollToBottom();
+                } else {
+                    // Mensaje del sistema (no del agente)
+                    mostrarMensajeSistema("Hay una intermitencia temporal en nuestros servidores. Por favor, verifica tu conexión o intenta en unos minutos.");
+                }
+                
+                historialMensajes.pop(); 
+            }
+        }
+
+        function mostrarMensajeUsuario(texto) {
+            document.getElementById('chat-box').insertAdjacentHTML('beforeend', `
+                <div class="flex gap-4 max-w-[85%] self-end flex-row-reverse">
+                    <div class="msg-user p-4 text-sm font-semibold">${texto}</div>
+                </div>`);
+            scrollToBottom();
+        }
+
+        function agregarMensajeIA(texto) {
+            let txtFmt = (typeof texto === 'string' ? texto : "Error de formato")
+                .replace(/\*\*(.*?)\*\*/g, '<span class="font-bold text-black">$1</span>')
+                .replace(/\n/g, '<br>');
+
+            if (txtFmt.toLowerCase().includes("agendar") || txtFmt.toLowerCase().includes("visita")) {
+                txtFmt += `<br><br><a href="checkout.html" class="inline-block bg-[#ff8801] text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">Agendar Visita Ahora</a>`;
+            }
+
+            document.getElementById('chat-box').insertAdjacentHTML('beforeend', `
+                <div class="flex gap-4 max-w-[85%] mt-2">
+                    <div class="w-8 h-8 rounded-full bg-black flex-shrink-0 flex items-center justify-center text-[#ff8801] text-xs"><i class="fa-solid fa-robot"></i></div>
+                    <div class="msg-ia p-4 text-sm text-gray-700 leading-relaxed">${txtFmt}</div>
+                </div>`);
+            scrollToBottom();
+        }
+
+        function mostrarMensajeSistema(texto) {
+            document.getElementById('chat-box').insertAdjacentHTML('beforeend', `
+                <div class="text-center text-[10px] text-gray-400 my-4 uppercase italic w-full">
+                    <i class="fa-solid fa-triangle-exclamation mr-1"></i> ${texto}
+                </div>`);
+            scrollToBottom();
+        }
+
+        function mostrarTyping() {
+            const id = 'typing-' + Date.now();
+            document.getElementById('chat-box').insertAdjacentHTML('beforeend', `
+                <div id="${id}" class="flex gap-4 max-w-[85%] mt-2">
+                    <div class="w-8 h-8 rounded-full bg-black flex-shrink-0 flex items-center justify-center text-[#ff8801] text-xs"><i class="fa-solid fa-robot"></i></div>
+                    <div class="msg-ia p-4 flex gap-1 items-center">
+                        <span class="w-2 h-2 bg-gray-300 rounded-full animate-bounce"></span>
+                        <span class="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+                        <span class="w-2 h-2 bg-gray-300 rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+                    </div>
+                </div>`);
+            scrollToBottom();
+            return id;
+        }
+
+        function scrollToBottom() {
+            const box = document.getElementById('chat-box');
+            box.scrollTop = box.scrollHeight;
+        }
+        
+        document.getElementById("user-input").addEventListener("keypress", e => {
+            if (e.key === "Enter") { e.preventDefault(); enviarMensaje(); }
+        });
+    </script>
+</body>
+</html>

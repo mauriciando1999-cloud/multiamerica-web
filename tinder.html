@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Match de Autos | Multiamerica</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Montserrat:ital,wght@1,900&display=swap" rel="stylesheet">
+    
+    <script src="public-db.js"></script>
+
+    <style>
+        :root { --brand-orange: #ff8801; }
+        body { 
+            background-color: #ffffff; /* Fondo oscuro premium */
+            font-family: 'Inter', sans-serif; 
+            overflow: hidden; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overscroll-behavior-y: contain; /* Evita recargar al halar en móviles */
+        }
+        .font-title { font-family: 'Montserrat', sans-serif; }
+        
+        /* Contenedor de Tarjetas */
+        .tinder-container {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            height: 65vh;
+            margin: 0 auto;
+            perspective: 1000px;
+            touch-action: none; /* Vital para móviles */
+        }
+
+        /* La Tarjeta */
+        .tinder-card {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            will-change: transform;
+            border: 1px solid rgba(255,255,255,0.1);
+            user-select: none;
+        }
+
+        .card-gradient {
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 45%, transparent 100%);
+        }
+
+        /* Animaciones Automáticas (Botones) */
+        .swipe-left { transform: translateX(-150vw) rotate(-30deg) !important; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; opacity: 0; }
+        .swipe-right { transform: translateX(150vw) rotate(30deg) !important; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important; opacity: 0; }
+
+        /* Sellos */
+        .stamp {
+            position: absolute; top: 15%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg);
+            padding: 10px 30px; border: 6px solid; border-radius: 15px; background: rgba(255,255,255,0.9);
+            font-size: 3rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+            opacity: 0; z-index: 50; pointer-events: none;
+        }
+        .stamp-nope { border-color: #ff3b30; color: #ff3b30; transform: translate(-50%, -50%) rotate(15deg); }
+        .stamp-like { border-color: #34c759; color: #34c759; }
+
+        /* Botones Flotantes */
+        .action-btn {
+            width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 30px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .action-btn:active { transform: scale(0.85); background: white; }
+        .btn-nope { color: #ff3b30; }
+        .btn-like { color: #34c759; }
+        .btn-super { width: 55px; height: 55px; font-size: 20px; color: var(--brand-orange); background: white;}
+
+        /* Match Animación */
+        @keyframes popMatch {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .match-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 200; }
+        .match-overlay.active { display: flex; animation: popMatch 0.5s ease-out forwards; }
+    </style>
+</head>
+<body>
+
+    <header class="p-5 flex justify-between items-center bg-transparent z-50">
+        <button onclick="window.location.href='index.html'" class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center shadow-sm text-white hover:bg-white hover:text-black transition-all">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <div>
+            <h1 class="text-xl font-title font-black uppercase italic tracking-tighter text-white">Cars<span class="text-[#ff8801]">Match</span> <i class="fa-solid fa-fire text-[#ff8801]"></i></h1>
+        </div>
+        <button onclick="window.location.href='checkout.html'" class="relative w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-black transition-all hover:scale-105">
+            <i class="fa-solid fa-garage"></i>
+            <span id="cart-badge" class="absolute -top-1 -right-1 bg-[#ff8801] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">0</span>
+        </button>
+    </header>
+
+    <main class="flex-1 flex flex-col items-center justify-center px-4 w-full relative">
+        
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#ff8801_0%,transparent_60%)] opacity-10 pointer-events-none"></div>
+
+        <div id="tinder-container" class="tinder-container">
+            <div id="loading" class="absolute inset-0 flex flex-col items-center justify-center bg-white/5 backdrop-blur-md rounded-[40px] border border-white/10 text-center">
+                <i class="fa-solid fa-radar text-4xl text-[#ff8801] animate-spin mb-4"></i>
+                <p class="text-xs font-black uppercase tracking-widest text-gray-400">Analizando Inventario...</p>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-6 mt-8 w-full max-w-sm z-50 relative">
+            <button onclick="deslizarBoton(false)" class="action-btn btn-nope"><i class="fa-solid fa-xmark"></i></button>
+            <button onclick="window.location.href='chatia.html?cart=true'" class="action-btn btn-super shadow-[0_0_20px_rgba(255,136,1,0.4)]">
+                <i class="fa-solid fa-robot"></i>
+            </button>
+            <button onclick="deslizarBoton(true)" class="action-btn btn-like"><i class="fa-solid fa-heart"></i></button>
+        </div>
+    </main>
+
+    <div id="match-screen" class="match-overlay fixed inset-0 bg-black/90 backdrop-blur-md">
+        <h2 class="font-title font-black italic text-6xl text-white tracking-tighter mb-2">¡MATCH!</h2>
+        <p class="text-gray-300 font-bold uppercase text-xs tracking-widest mb-8 text-center px-4">La IA ha guardado este vehículo en tu selección.</p>
+        <img id="match-img" src="" class="w-64 h-64 object-cover rounded-full border-4 border-[#ff8801] shadow-[0_0_50px_rgba(255,136,1,0.5)] mb-8">
+        
+        <div class="flex flex-col gap-3 w-full max-w-xs px-6">
+            <button onclick="cerrarMatch()" class="w-full py-4 bg-[#ff8801] text-black rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg hover:bg-white transition-all">
+                Seguir Buscando
+            </button>
+            <button onclick="window.location.href='chatia.html?cart=true'" class="w-full py-4 bg-transparent border-2 border-white/20 text-white rounded-2xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
+                <i class="fa-solid fa-robot"></i> Analizar con IA
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let inventario = [];
+        let indexActual = 0;
+        let carrito = JSON.parse(sessionStorage.getItem("carrito_multiamerica")) || [];
+        const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.CONFIG && CONFIG.COLOR_PRIMARIO) {
+                document.documentElement.style.setProperty('--brand-orange', CONFIG.COLOR_PRIMARIO);
+            }
+            actualizarBadge();
+            cargarInventario();
+        });
+
+        function obtenerUrlFotoLocal(fotoPath) {
+            if (!fotoPath) return 'https://placehold.co/400x600?text=No+Image';
+            if (fotoPath.startsWith('http')) return fotoPath;
+            const baseStorage = (typeof window.CONFIG_DB !== 'undefined') ? 
+                `${window.CONFIG_DB.SUPABASE_URL}/storage/v1/object/public/autos/` : 
+                "https://zamiahmbgwqiralxinju.supabase.co/storage/v1/object/public/autos/";
+            return baseStorage + fotoPath;
+        }
+
+        async function cargarInventario() {
+            try {
+                const client = (typeof _supabase !== 'undefined') ? _supabase : supabase;
+                const { data, error } = await client
+                    .from('inventario')
+                    .select('*')
+                    .eq('estatus', 'Disponible')
+                    .order('creado_el', { ascending: false });
+
+                if (error) throw error;
+                
+                const idsEnCarrito = carrito.map(c => c.id);
+                inventario = data.filter(auto => !idsEnCarrito.includes(auto.id));
+                inventario = inventario.sort(() => Math.random() - 0.5);
+
+                renderCards();
+            } catch (e) {
+                console.error(e);
+                document.getElementById('loading').innerHTML = `<p class="text-red-500 font-bold">Error de conexión.</p>`;
+            }
+        }
+
+        function renderCards() {
+            const container = document.getElementById('tinder-container');
+            document.getElementById('loading')?.remove();
+
+            if (inventario.length === 0 || indexActual >= inventario.length) {
+                container.innerHTML = `
+                    <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/10 backdrop-blur-md rounded-[40px] border border-white/20 p-6 text-center text-white">
+                        <div class="w-20 h-20 bg-[#ff8801] text-black rounded-full flex items-center justify-center text-3xl mb-6 shadow-[0_0_30px_rgba(255,136,1,0.5)]">
+                            <i class="fa-solid fa-flag-checkered"></i>
+                        </div>
+                        <h3 class="font-black text-3xl italic uppercase tracking-tighter">¡Viste todo!</h3>
+                        <p class="text-xs text-gray-300 mt-3 max-w-[200px] leading-relaxed">Pídele a nuestra IA que analice tus likes y te asesore.</p>
+                        
+                        <button onclick="window.location.href='chatia.html?cart=true'" class="mt-8 w-full py-4 bg-white text-black rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-robot"></i> Consultar Inteligencia Artificial
+                        </button>
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+            for (let i = inventario.length - 1; i >= indexActual; i--) {
+                const auto = inventario[i];
+                let fotoUrl = 'https://placehold.co/400x600?text=Auto';
+                if (auto.fotos && auto.fotos.length > 0) fotoUrl = obtenerUrlFotoLocal(auto.fotos[0]);
+                else if (auto.foto) fotoUrl = obtenerUrlFotoLocal(auto.foto);
+
+                const zIndex = 1000 - i;
+                const scale = i === indexActual ? 1 : 0.95;
+                const translateY = i === indexActual ? 0 : 15;
+
+                html += `
+                    <div id="card-${i}" class="tinder-card" style="z-index: ${zIndex}; transform: scale(${scale}) translateY(${translateY}px);">
+                        
+                        <div class="stamp stamp-like" id="like-${i}">DAME</div>
+                        <div class="stamp stamp-nope" id="nope-${i}">PASO</div>
+
+                        <img src="${fotoUrl}" class="w-full h-full object-cover absolute inset-0 pointer-events-none">
+                        
+                        <div class="absolute inset-x-0 bottom-0 card-gradient pt-32 pb-8 px-6 flex flex-col justify-end text-white pointer-events-none">
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <h2 class="text-4xl font-title font-black uppercase italic leading-none drop-shadow-lg">
+                                        ${auto.marca}
+                                    </h2>
+                                    <p class="text-xl font-bold mt-1 text-gray-200 drop-shadow-md">${auto.modelo}</p>
+                                    
+                                    <div class="flex gap-2 mt-3">
+                                        <span class="bg-white/20 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">${auto.anio}</span>
+                                        <span class="bg-white/20 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">${auto.transmision || 'S/D'}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 flex justify-between items-center pointer-events-auto">
+                                <div>
+                                    <p class="text-[9px] uppercase font-bold text-gray-300 tracking-[2px]">Valor Estimado</p>
+                                    <p class="text-2xl font-black text-[#ff8801] drop-shadow-md">${currency.format(auto.precio_venta || 0)}</p>
+                                </div>
+                                <button onclick="event.stopPropagation(); window.location.href='detalle.html?id=${auto.id}'" class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all">
+                                    <i class="fa-solid fa-info"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        // ==========================================
+        // MOTOR FÍSICO DE ARRASTRE (DRAG & SWIPE)
+        // ==========================================
+        let isDragging = false;
+        let startX = 0;
+        let currentDelta = 0;
+
+        const container = document.getElementById('tinder-container');
+
+        function startInteraction(e) {
+            if (indexActual >= inventario.length) return;
+            isDragging = true;
+            startX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+            
+            const card = document.getElementById(`card-${indexActual}`);
+            if(card) card.style.transition = 'none';
+        }
+
+        function moveInteraction(e) {
+            if (!isDragging) return;
+            if(e.cancelable) e.preventDefault(); // Detiene el scroll de la página en celulares
+            
+            const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+            currentDelta = currentX - startX;
+            
+            const card = document.getElementById(`card-${indexActual}`);
+            const likeStamp = document.getElementById(`like-${indexActual}`);
+            const nopeStamp = document.getElementById(`nope-${indexActual}`);
+
+            if(!card) return;
+
+            // Físicas de rotación
+            card.style.transform = `translateX(${currentDelta}px) rotate(${currentDelta * 0.05}deg)`;
+            
+            // Visualización de sellos según dirección
+            if (currentDelta > 20) {
+                if(likeStamp) likeStamp.style.opacity = Math.min(currentDelta / 100, 1);
+                if(nopeStamp) nopeStamp.style.opacity = 0;
+            } else if (currentDelta < -20) {
+                if(nopeStamp) nopeStamp.style.opacity = Math.min(Math.abs(currentDelta) / 100, 1);
+                if(likeStamp) likeStamp.style.opacity = 0;
+            } else {
+                if(likeStamp) likeStamp.style.opacity = 0;
+                if(nopeStamp) nopeStamp.style.opacity = 0;
+            }
+        }
+
+        function endInteraction(e) {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const card = document.getElementById(`card-${indexActual}`);
+            if(!card) return;
+
+            // Sensibilidad: En celular requiere 80px, en PC 150px
+            const threshold = window.innerWidth < 768 ? 80 : 150;
+
+            if (currentDelta > threshold) {
+                procesarSwipe(true); // Derecha = LIKE
+            } else if (currentDelta < -threshold) {
+                procesarSwipe(false); // Izquierda = NOPE
+            } else {
+                // Si no llegó al borde, regresa al centro suavemente
+                card.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                card.style.transform = 'scale(1) translateY(0px)';
+                
+                const likeStamp = document.getElementById(`like-${indexActual}`);
+                const nopeStamp = document.getElementById(`nope-${indexActual}`);
+                if(likeStamp) likeStamp.style.opacity = 0;
+                if(nopeStamp) nopeStamp.style.opacity = 0;
+            }
+            currentDelta = 0;
+        }
+
+        // Listeners globales para atrapar el arrastre
+        container.addEventListener('mousedown', startInteraction);
+        window.addEventListener('mousemove', moveInteraction);
+        window.addEventListener('mouseup', endInteraction);
+        
+        // Listeners Touch vitales para Móvil
+        container.addEventListener('touchstart', startInteraction, { passive: false });
+        window.addEventListener('touchmove', moveInteraction, { passive: false });
+        window.addEventListener('touchend', endInteraction);
+
+
+        // ==========================================
+        // LÓGICA DE NEGOCIO Y BOTONES
+        // ==========================================
+        
+        // Función para los botones redondos inferiores (sin arrastrar)
+        function deslizarBoton(like) {
+            if (indexActual >= inventario.length) return;
+            const card = document.getElementById(`card-${indexActual}`);
+            
+            if (like) document.getElementById(`like-${indexActual}`).style.opacity = '1';
+            else document.getElementById(`nope-${indexActual}`).style.opacity = '1';
+
+            card.classList.add(like ? 'swipe-right' : 'swipe-left');
+            procesarSwipeLogica(like);
+        }
+
+        // Función que se ejecuta tras el arrastre manual
+        function procesarSwipe(like) {
+            const card = document.getElementById(`card-${indexActual}`);
+            
+            // Forzamos la animación de salida para que vuele fuera de la pantalla
+            card.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            card.style.transform = like ? 'translateX(150vw) rotate(30deg)' : 'translateX(-150vw) rotate(-30deg)';
+            
+            procesarSwipeLogica(like);
+        }
+
+        // Guarda en base de datos local y prepara la siguiente
+        function procesarSwipeLogica(like) {
+            const auto = inventario[indexActual];
+
+            if (like) {
+                carrito.push(auto);
+                sessionStorage.setItem("carrito_multiamerica", JSON.stringify(carrito));
+                actualizarBadge();
+                
+                // Efecto de Match
+                setTimeout(() => mostrarMatch(auto), 300);
+            }
+
+            indexActual++;
+            
+            setTimeout(() => {
+                const oldCard = document.getElementById(`card-${indexActual - 1}`);
+                if (oldCard) oldCard.style.display = 'none';
+                
+                // Animación de la tarjeta que viene detrás
+                const nextCard = document.getElementById(`card-${indexActual}`);
+                if (nextCard) {
+                    nextCard.style.transform = 'scale(1) translateY(0px)';
+                } else {
+                    renderCards();
+                }
+            }, 400);
+        }
+
+        function mostrarMatch(auto) {
+            let fotoUrl = 'https://placehold.co/400x400?text=Auto';
+            if (auto.fotos && auto.fotos.length > 0) fotoUrl = obtenerUrlFotoLocal(auto.fotos[0]);
+            
+            document.getElementById('match-img').src = fotoUrl;
+            document.getElementById('match-screen').classList.add('active');
+        }
+
+        function cerrarMatch() {
+            document.getElementById('match-screen').classList.remove('active');
+        }
+
+        function actualizarBadge() {
+            document.getElementById('cart-badge').innerText = carrito.length;
+            if(carrito.length > 0) {
+                document.getElementById('cart-badge').classList.add('animate-bounce');
+                setTimeout(() => document.getElementById('cart-badge').classList.remove('animate-bounce'), 1000);
+            }
+        }
+    </script>
+</body>
+</html>

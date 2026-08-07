@@ -164,7 +164,10 @@
                         experiencia_declarada: document.getElementById('v-experiencia').value.trim(),
                         descripcion_perfil: document.getElementById('v-descripcion').value.trim(),
                         cv_url: dCv.path,
-                        foto_url: dFo.path
+                        foto_url: dFo.path,
+                        contratacion: 'evaluado',
+                        habilidades_ia: null,
+                        resumen_ia: null
                     }]);
 
                     if (eDb) throw eDb;

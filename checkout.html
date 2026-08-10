@@ -277,16 +277,18 @@
                 gerenteAsignado = gerentes[Math.floor(Math.random() * gerentes.length)];
             }
 
-            // Dejamos registro del lead para que el staff le haga seguimiento
+            // Dejamos registro del lead y notificamos al gerente (Edge Function
+            // con service_role: busca su email server-side y le manda el correo).
             try {
-                await client.from('consultas_showroom').insert([{
-                    tipo: 'Cita',
-                    vehiculos: carrito.map(c => `${c.marca} ${c.modelo} ${c.anio}`),
-                    gerente_slug: gerenteAsignado.slug || null,
-                    gerente_nombre: `${gerenteAsignado.nombre} ${gerenteAsignado.apellido || ''}`.trim(),
-                    fecha_hora: `${fecha} ${hora}`,
-                    ubicacion: 'Sede Quinta Crespo, Caracas'
-                }]);
+                await client.functions.invoke('registrar-lead-showroom', {
+                    body: {
+                        tipo: 'Cita',
+                        vehiculos: carrito.map(c => `${c.marca} ${c.modelo} ${c.anio}`),
+                        gerente_slug: gerenteAsignado.slug || null,
+                        fecha_hora: `${fecha} ${hora}`,
+                        ubicacion: 'Sede Quinta Crespo, Caracas'
+                    }
+                });
             } catch (e) { console.warn('No se pudo registrar el lead:', e); }
 
             btn.innerHTML = originalText;

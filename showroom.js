@@ -317,14 +317,18 @@ async function enviarConsulta(event) {
             gerenteAsignado = gerentes[Math.floor(Math.random() * gerentes.length)];
         }
 
-        const { error } = await client.from('consultas_showroom').insert([{
-            tipo: 'Consulta',
-            cliente_nombre: nombre,
-            cliente_telefono: telefono,
-            vehiculos: carrito.map(c => `${c.marca} ${c.modelo} ${c.anio}`),
-            gerente_slug: gerenteAsignado?.slug || null,
-            gerente_nombre: gerenteAsignado ? `${gerenteAsignado.nombre} ${gerenteAsignado.apellido || ''}`.trim() : null
-        }]);
+        // El registro real y la notificacion al gerente las hace el
+        // Edge Function (con service_role) para no exponer emails
+        // ni dejar el insert directo abierto al publico.
+        const { error } = await client.functions.invoke('registrar-lead-showroom', {
+            body: {
+                tipo: 'Consulta',
+                cliente_nombre: nombre,
+                cliente_telefono: telefono,
+                vehiculos: carrito.map(c => `${c.marca} ${c.modelo} ${c.anio}`),
+                gerente_slug: gerenteAsignado?.slug || null
+            }
+        });
         if (error) throw error;
 
         const nombreAsesor = gerenteAsignado ? gerenteAsignado.nombre : 'un asesor';

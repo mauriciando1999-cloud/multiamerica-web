@@ -7,6 +7,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// El cliente_nombre/telefono/vehiculos vienen de un visitante anonimo sin
+// validar: hay que escaparlos antes de meterlos en el HTML del correo.
+function escapeHtml(str: unknown): string {
+  return String(str ?? '').replace(/[&<>"']/g, (c) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c] as string))
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -65,10 +73,11 @@ serve(async (req) => {
           },
         })
 
-        const listaAutos = (vehiculos || []).map((v: string) => `- ${v}`).join('\n')
+        const listaAutos = (vehiculos || []).map((v: string) => `- ${escapeHtml(v)}`).join('\n')
+        const clienteNombreSafe = escapeHtml(cliente_nombre) || 'Cliente'
         const asunto = tipo === 'Cita'
-          ? `Nueva cita agendada: ${cliente_nombre || 'Cliente'}`
-          : `Nuevo lead del Showroom: ${cliente_nombre || 'Cliente'}`
+          ? `Nueva cita agendada: ${clienteNombreSafe}`
+          : `Nuevo lead del Showroom: ${clienteNombreSafe}`
 
         await client.send({
           from: `Multiamerica <${GMAIL_USER}>`,
@@ -77,13 +86,13 @@ serve(async (req) => {
           content: "text/html",
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto;">
-              <h2 style="color: #ea580c;">¡Hola, ${gerente.nombre}!</h2>
+              <h2 style="color: #ea580c;">¡Hola, ${escapeHtml(gerente.nombre)}!</h2>
               <p>Se te asignó un ${tipo === 'Cita' ? 'cliente con cita agendada' : 'cliente interesado'} en el Showroom.</p>
               <div style="background:#fff7ed; border-left:4px solid #ea580c; padding:20px; margin:20px 0; border-radius:8px;">
-                ${cliente_nombre ? `<p><strong>Cliente:</strong> ${cliente_nombre}</p>` : ''}
-                ${cliente_telefono ? `<p><strong>Teléfono:</strong> ${cliente_telefono}</p>` : ''}
-                ${fecha_hora ? `<p><strong>Fecha/Hora:</strong> ${fecha_hora}</p>` : ''}
-                ${ubicacion ? `<p><strong>Ubicación:</strong> ${ubicacion}</p>` : ''}
+                ${cliente_nombre ? `<p><strong>Cliente:</strong> ${clienteNombreSafe}</p>` : ''}
+                ${cliente_telefono ? `<p><strong>Teléfono:</strong> ${escapeHtml(cliente_telefono)}</p>` : ''}
+                ${fecha_hora ? `<p><strong>Fecha/Hora:</strong> ${escapeHtml(fecha_hora)}</p>` : ''}
+                ${ubicacion ? `<p><strong>Ubicación:</strong> ${escapeHtml(ubicacion)}</p>` : ''}
                 <p><strong>Vehículos:</strong></p>
                 <pre style="white-space:pre-wrap; font-family:inherit;">${listaAutos}</pre>
               </div>

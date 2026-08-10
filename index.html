@@ -89,6 +89,9 @@
         <video id="intro-video" playsinline>
             <source src="intro-video.mp4" type="video/webm">
         </video>
+        <button onclick="saltarIntro()" class="fixed top-6 right-6 z-[10001] bg-white/10 hover:bg-white/20 text-white text-[10px] font-black uppercase tracking-widest px-5 py-3 rounded-full border border-white/20 backdrop-blur-md transition-all active:scale-95">
+            Saltar <i class="fa-solid fa-forward ml-1"></i>
+        </button>
     </div>
 
     <!-- ================= NAVEGACIÓN FIJA ================= -->
@@ -302,6 +305,15 @@
                     forzarEntradaWeb();
                 });
             }
+
+            // Disponible en ambos casos (usuario nuevo o recurrente que
+            // vuelve a ver el intro manualmente) para saltar el video.
+            window.saltarIntro = function() {
+                localStorage.setItem('multiamerica_intro', 'true');
+                clearTimeout(fallbackTimer);
+                introVideo.pause();
+                forzarEntradaWeb();
+            };
 
             // Animaciones Scroll
             gsap.utils.toArray('.gs-reveal').forEach(function(elem) {

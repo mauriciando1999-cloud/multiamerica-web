@@ -265,26 +265,29 @@
             btn.innerHTML = `<span>Asignando Gerente...</span><span class="animate-spin text-lg">⚙️</span>`;
 
             const client = (typeof _supabase !== 'undefined') ? _supabase : supabase;
-            
-            // Buscar gerentes
+
+            // Buscar gerentes (vista publica; 'vendedores' no es legible por anonimos)
             const { data: gerentes, error } = await client
-                .from('vendedores')
-                .select('nombre, apellido, whatsapp')
-                .eq('activo', true)
-                .eq('rol', 'Gerente');
+                .from('lista_gerentes')
+                .select('slug, nombre, apellido, whatsapp');
 
             let gerenteAsignado = { nombre: "Gerente", apellido: "De Guardia", whatsapp: "584120000000" };
 
-            // Tratar de asignar uno si existen
             if (!error && gerentes && gerentes.length > 0) {
                 gerenteAsignado = gerentes[Math.floor(Math.random() * gerentes.length)];
-            } else {
-                // Fallback a cualquier vendedor
-                const { data: vendedores } = await client.from('vendedores').select('nombre, apellido, whatsapp').eq('activo', true);
-                if (vendedores && vendedores.length > 0) {
-                    gerenteAsignado = vendedores[Math.floor(Math.random() * vendedores.length)];
-                }
             }
+
+            // Dejamos registro del lead para que el staff le haga seguimiento
+            try {
+                await client.from('consultas_showroom').insert([{
+                    tipo: 'Cita',
+                    vehiculos: carrito.map(c => `${c.marca} ${c.modelo} ${c.anio}`),
+                    gerente_slug: gerenteAsignado.slug || null,
+                    gerente_nombre: `${gerenteAsignado.nombre} ${gerenteAsignado.apellido || ''}`.trim(),
+                    fecha_hora: `${fecha} ${hora}`,
+                    ubicacion: 'Sede Quinta Crespo, Caracas'
+                }]);
+            } catch (e) { console.warn('No se pudo registrar el lead:', e); }
 
             btn.innerHTML = originalText;
             mostrarModalGerente(gerenteAsignado, fecha, hora);

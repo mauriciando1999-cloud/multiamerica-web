@@ -243,18 +243,101 @@ function irAlCheckout() {
     window.location.href = 'checkout.html';
 }
 
+function irAInformacion() {
+    // Mismo destino que Agendar: el cliente revisa su selección en checkout.html
+    // y desde ahí decide si sigue al paso de fecha/hora.
+    irAlCheckout();
+}
+
 function actualizarPanelCarrito() {
     const panel = document.getElementById('cart-panel');
     const contador = document.getElementById('cart-count');
-    
-    if (carrito.length > 0) { 
-        panel.classList.add('active'); 
-        contador.innerText = `${carrito.length} Vehículo${carrito.length !== 1 ? 's' : ''}`;
-        
-        contador.parentElement.parentElement.firstElementChild.classList.add('animate-bounce');
-        setTimeout(() => contador.parentElement.parentElement.firstElementChild.classList.remove('animate-bounce'), 1000);
-    } else { 
-        panel.classList.remove('active'); 
+    const contadorDesktop = document.getElementById('cart-count-desktop');
+    const texto = carrito.length > 0 ? `${carrito.length} Vehículo${carrito.length !== 1 ? 's' : ''}` : '0 Vehículos';
+
+    contador.innerText = texto;
+    if (contadorDesktop) contadorDesktop.innerText = texto;
+
+    if (carrito.length > 0) {
+        panel.classList.add('active');
+        const icono = panel.querySelector('.fa-garage');
+        if (icono) {
+            icono.classList.add('animate-bounce');
+            setTimeout(() => icono.classList.remove('animate-bounce'), 1000);
+        }
+    } else {
+        panel.classList.remove('active');
+    }
+}
+
+// ==========================================
+// MODAL "CONSULTAR CON ASESOR" (sin fecha/hora)
+// ==========================================
+function abrirModalConsulta() {
+    if (carrito.length === 0) return alert("Selecciona al menos un vehículo para consultar.");
+
+    const lista = document.getElementById('consulta-lista-autos');
+    lista.innerHTML = carrito.map(c => `
+        <span class="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide border border-gray-200">
+            ${c.marca} ${c.modelo}
+        </span>`).join('');
+
+    document.getElementById('form-consulta').classList.remove('hidden');
+    document.getElementById('consulta-exito').classList.add('hidden');
+    document.getElementById('form-consulta').reset();
+
+    const modal = document.getElementById('modal-consulta');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function cerrarModalConsulta() {
+    const modal = document.getElementById('modal-consulta');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+async function enviarConsulta(event) {
+    event.preventDefault();
+    const btn = document.getElementById('btn-enviar-consulta');
+    const nombre = document.getElementById('consulta-nombre').value.trim();
+    const telefono = document.getElementById('consulta-telefono').value.trim();
+    if (!nombre || !telefono) return;
+
+    btn.disabled = true;
+    btn.innerText = "Enviando...";
+
+    try {
+        const client = (typeof _supabase !== 'undefined') ? _supabase : supabase;
+
+        // Asignamos un gerente real (vista publica, filtra rol='gerente')
+        const { data: gerentes } = await client.from('lista_gerentes').select('slug, nombre, apellido');
+        let gerenteAsignado = null;
+        if (gerentes && gerentes.length > 0) {
+            gerenteAsignado = gerentes[Math.floor(Math.random() * gerentes.length)];
+        }
+
+        const { error } = await client.from('consultas_showroom').insert([{
+            tipo: 'Consulta',
+            cliente_nombre: nombre,
+            cliente_telefono: telefono,
+            vehiculos: carrito.map(c => `${c.marca} ${c.modelo} ${c.anio}`),
+            gerente_slug: gerenteAsignado?.slug || null,
+            gerente_nombre: gerenteAsignado ? `${gerenteAsignado.nombre} ${gerenteAsignado.apellido || ''}`.trim() : null
+        }]);
+        if (error) throw error;
+
+        const nombreAsesor = gerenteAsignado ? gerenteAsignado.nombre : 'un asesor';
+        document.getElementById('consulta-exito-texto').innerText =
+            `¡Listo, ${nombre}! ${nombreAsesor} va a contactarte al ${telefono} a la brevedad para hablar de tu selección.`;
+        document.getElementById('form-consulta').classList.add('hidden');
+        document.getElementById('consulta-exito').classList.remove('hidden');
+
+    } catch (e) {
+        console.error("Error enviando consulta:", e);
+        alert("No pudimos enviar tu solicitud. Intenta de nuevo en un momento.");
+        btn.disabled = false;
+        btn.innerText = "Solicitar Contacto";
     }
 }
 

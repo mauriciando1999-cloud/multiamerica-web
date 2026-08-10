@@ -243,12 +243,6 @@ function irAlCheckout() {
     window.location.href = 'checkout.html';
 }
 
-function irAInformacion() {
-    // Mismo destino que Agendar: el cliente revisa su selección en checkout.html
-    // y desde ahí decide si sigue al paso de fecha/hora.
-    irAlCheckout();
-}
-
 function actualizarPanelCarrito() {
     const panel = document.getElementById('cart-panel');
     const contador = document.getElementById('cart-count');

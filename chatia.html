@@ -86,8 +86,13 @@
                 } else if (fromCart) {
                     contextoAutos = JSON.parse(sessionStorage.getItem('carrito_multiamerica')) || [];
                 }
-                
-                await procesarRespuestaIA("¡Hola! Soy tu asesor en Multiamerica Vehículos. ¿Qué tienes en mente hoy?");
+
+                if (contextoAutos.length > 0) {
+                    const listaAutos = contextoAutos.map(c => `${c.marca} ${c.modelo} ${c.anio || ''}`.trim()).join(', ');
+                    await procesarRespuestaIA(`¡Hola! Soy tu asesor en Multiamerica Vehículos. Veo que te interesan: **${listaAutos}**. ¿Qué te gustaría saber sobre estos vehículos?`);
+                } else {
+                    await procesarRespuestaIA("¡Hola! Soy tu asesor en Multiamerica Vehículos. ¿Qué tienes en mente hoy?");
+                }
             } catch (e) {
                 await procesarRespuestaIA("¡Hola! Bienvenido a Multiamerica. ¿En qué puedo ayudarte?");
             }

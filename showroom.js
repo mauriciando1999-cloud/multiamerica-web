@@ -320,6 +320,7 @@ async function enviarConsulta(event) {
                 cliente_nombre: nombre,
                 cliente_telefono: telefono,
                 vehiculos: carrito.map(c => `${c.marca} ${c.modelo} ${c.anio}`),
+                vehiculo_ids: carrito.map(c => c.id).filter(Boolean),
                 gerente_slug: gerenteAsignado?.slug || null
             }
         });

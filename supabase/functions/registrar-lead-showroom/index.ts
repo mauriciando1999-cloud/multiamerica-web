@@ -21,7 +21,7 @@ serve(async (req) => {
   }
 
   try {
-    const { tipo, cliente_nombre, cliente_telefono, vehiculos, gerente_slug, fecha_hora, ubicacion } = await req.json()
+    const { tipo, cliente_nombre, cliente_telefono, vehiculos, vehiculo_ids, gerente_slug, fecha_hora, ubicacion } = await req.json()
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -48,6 +48,7 @@ serve(async (req) => {
       cliente_nombre: cliente_nombre || null,
       cliente_telefono: cliente_telefono || null,
       vehiculos: vehiculos || [],
+      vehiculo_ids: Array.isArray(vehiculo_ids) ? vehiculo_ids : null,
       gerente_slug: gerente_slug || null,
       gerente_nombre: gerenteNombreCompleto,
       gerente_email: gerente?.email || null,

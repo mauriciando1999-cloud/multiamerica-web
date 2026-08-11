@@ -284,6 +284,7 @@
                     body: {
                         tipo: 'Cita',
                         vehiculos: carrito.map(c => `${c.marca} ${c.modelo} ${c.anio}`),
+                        vehiculo_ids: carrito.map(c => c.id).filter(Boolean),
                         gerente_slug: gerenteAsignado.slug || null,
                         fecha_hora: `${fecha} ${hora}`,
                         ubicacion: 'Sede Quinta Crespo, Caracas'

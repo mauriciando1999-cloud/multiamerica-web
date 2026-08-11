@@ -363,7 +363,7 @@ async function inicializarAtribucion() {
 // ==========================================
 let indicePaso = 0;
 const pasosTutorial = [
-    { id: 'buscador-container', texto: "🕵️‍♂️ Escribe aquí la nave que buscas. El inventario se filtrará automáticamente.", audio: 'paso1.mp3' },
+    { id: 'buscador-container', texto: "🕵️‍♂️ Escribe aquí el vehículo que buscas. El inventario se filtrará automáticamente.", audio: 'paso1.mp3' },
     { id: 'btn-filtros', texto: "⚙️ Usa los filtros avanzados para buscar por años específicos o transmisiones.", audio: 'paso2.mp3' },
     { selector: '.btn-add-cart', texto: "➕ Haz clic en el botón naranja para añadir vehículos a tu garaje personal.", audio: 'paso3.mp3' },
     { id: 'cart-panel', texto: "📅 Cuando termines tu selección, dale a 'Agendar' para que un gerente te atienda.", audio: 'paso4.mp3' }

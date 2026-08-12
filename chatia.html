@@ -212,7 +212,7 @@
                 .replace(/\n/g, '<br>');
 
             if (txtFmt.toLowerCase().includes("agendar") || txtFmt.toLowerCase().includes("visita")) {
-                txtFmt += `<br><br><a href="checkout.html" class="inline-block bg-[#d65127] text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">Agendar Visita Ahora</a>`;
+                txtFmt += `<br><br><button onclick="irACheckout()" class="inline-block bg-[#d65127] text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all">Agendar Visita Ahora</button>`;
             }
 
             document.getElementById('chat-box').insertAdjacentHTML('beforeend', `
@@ -221,6 +221,17 @@
                     <div class="msg-ia p-4 text-sm text-gray-700 leading-relaxed">${txtFmt}</div>
                 </div>`);
             scrollToBottom();
+        }
+
+        function irACheckout() {
+            // El carrito de checkout.html vive en sessionStorage; si el
+            // cliente llego al chat por un vehiculo especifico (?id=) o por
+            // el carrito, contextoAutos ya lo tiene, pero nunca se escribia
+            // ahi antes de mandarlo al checkout.
+            if (contextoAutos.length > 0) {
+                sessionStorage.setItem('carrito_multiamerica', JSON.stringify(contextoAutos));
+            }
+            window.location.href = 'checkout.html';
         }
 
         function mostrarMensajeSistema(texto) {

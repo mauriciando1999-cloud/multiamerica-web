@@ -86,11 +86,11 @@
                 <div class="relative w-64 h-64 flex items-center justify-center">
                     <div class="absolute inset-0 border-[8px] border-gray-50 rounded-full bg-white shadow-inner"></div>
                     <div id="markers-container" class="absolute inset-0">
-                        <button onclick="setHora(this, -90, '08:00 AM')" class="time-marker" style="top: 50%; left: 12%; transform: translate(-50%, -50%);">08:00<br>AM</button>
-                        <button onclick="setHora(this, -45, '10:00 AM')" class="time-marker" style="top: 25%; left: 25%; transform: translate(-50%, -50%);">10:00<br>AM</button>
-                        <button onclick="setHora(this, 0, '12:00 PM')"   class="time-marker" style="top: 15%; left: 50%; transform: translate(-50%, -50%);">12:00<br>PM</button>
-                        <button onclick="setHora(this, 45, '02:00 PM')"  class="time-marker" style="top: 25%; left: 75%; transform: translate(-50%, -50%);">02:00<br>PM</button>
-                        <button onclick="setHora(this, 90, '04:00 PM')"  class="time-marker" style="top: 50%; left: 88%; transform: translate(-50%, -50%);">04:00<br>PM</button>
+                        <button class="time-marker" data-deg="-90" style="top: 50%; left: 12%; transform: translate(-50%, -50%);"></button>
+                        <button class="time-marker" data-deg="-45" style="top: 25%; left: 25%; transform: translate(-50%, -50%);"></button>
+                        <button class="time-marker" data-deg="0"   style="top: 15%; left: 50%; transform: translate(-50%, -50%);"></button>
+                        <button class="time-marker" data-deg="45"  style="top: 25%; left: 75%; transform: translate(-50%, -50%);"></button>
+                        <button class="time-marker" data-deg="90"  style="top: 50%; left: 88%; transform: translate(-50%, -50%);"></button>
                     </div>
                     <div id="aguja" class="absolute bg-orange-500 rounded-full" style="width: 4px; height: 90px; bottom: 50%; left: 50%; transform: translateX(-50%) rotate(-90deg); transform-origin: bottom center; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);"></div>
                     <div class="absolute w-6 h-6 bg-black rounded-full z-20 border-4 border-gray-800"></div>
@@ -214,6 +214,7 @@
                     document.querySelectorAll('.cal-day').forEach(el => el.classList.remove('selected'));
                     diaEl.classList.add('selected');
                     document.getElementById('fecha-final').value = `${d}/${mes+1}/${anio}`;
+                    pintarMarkers(fecha.getDay() === 6);
                     if (document.getElementById('tutorial-overlay').style.display === 'block' && indicePaso === 1) setTimeout(siguientePaso, 400);
                 };
             }
@@ -224,6 +225,25 @@
     function cambiarMes(dir) { 
         currentMonth.setMonth(currentMonth.getMonth() + dir); 
         renderCalendar(); 
+    }
+
+    // Horarios reales de atencion (ver imagen de horarios): L-V 9am-5pm,
+    // Sabados 9am-2pm. Los 5 marcadores del tacometro se repintan segun el
+    // dia elegido para que sea imposible seleccionar una hora fuera de rango.
+    const HORAS_SEMANA = ['09:00 AM', '11:00 AM', '01:00 PM', '03:00 PM', '04:00 PM'];
+    const HORAS_SABADO = ['09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM'];
+
+    function pintarMarkers(esSabado) {
+        const horas = esSabado ? HORAS_SABADO : HORAS_SEMANA;
+        document.querySelectorAll('#markers-container .time-marker').forEach((btn, i) => {
+            const [hh, ampm] = horas[i].split(' ');
+            btn.innerHTML = `${hh}<br>${ampm}`;
+            btn.onclick = () => setHora(btn, Number(btn.dataset.deg), horas[i]);
+            btn.classList.remove('selected');
+        });
+        document.getElementById('aguja').style.transform = 'translateX(-50%) rotate(-90deg)';
+        horaSeleccionada = '';
+        document.getElementById('display-hora').innerText = '--:-- --';
     }
 
     function setHora(btn, deg, hora) {
@@ -404,6 +424,7 @@
     document.addEventListener("DOMContentLoaded", () => {
         renderCheckout();
         renderCalendar();
+        pintarMarkers(false);
     });
     </script>
 </body>

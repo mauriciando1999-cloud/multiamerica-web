@@ -22,7 +22,7 @@
 
     <header class="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between shadow-sm z-10">
         <div class="flex items-center gap-4">
-            <button onclick="history.back()" class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-black transition-all">
+            <button onclick="volver()" class="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-black transition-all">
                 <i class="fa-solid fa-arrow-left"></i>
             </button>
             <div>
@@ -47,6 +47,17 @@
         const urlParams = new URLSearchParams(window.location.search);
         const vehiculoId = urlParams.get('id');
         const fromCart = urlParams.get('cart');
+
+        // history.back() no hace nada si la pagina se abrio directo desde un
+        // link externo, sin historial previo en esa pestaña. history.length
+        // no es confiable para detectar esto, usamos el referrer.
+        function volver() {
+            if (document.referrer && document.referrer.startsWith(window.location.origin)) {
+                history.back();
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
         
         let contextoAutos = []; 
         let inventarioGlobal = [];

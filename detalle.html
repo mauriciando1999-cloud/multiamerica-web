@@ -34,7 +34,7 @@
 <body class="pb-10">
 
     <nav class="sticky top-0 z-50 glass px-6 py-4 flex justify-between items-center transition-all">
-        <button onclick="history.back()" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:text-[#ff8801] transition-colors bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm">
+        <button onclick="volver()" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:text-[#ff8801] transition-colors bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm">
             <i class="fa-solid fa-arrow-left"></i> Volver
         </button>
         <h1 class="text-sm font-title font-black tracking-tighter uppercase italic">MULTI<span class="text-brand">AMERICA</span></h1>
@@ -55,6 +55,19 @@
 
     <script>
         const currency = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+        // history.back() no hace nada si la pagina se abrio directo desde un
+        // link externo (ej. el link al auto que mandamos por WhatsApp): no
+        // hay historial previo en esa pestaña. history.length no es
+        // confiable para detectar esto, asi que usamos el referrer: si no
+        // viene de nuestro propio sitio, no hay a donde volver.
+        function volver() {
+            if (document.referrer && document.referrer.startsWith(window.location.origin)) {
+                history.back();
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
             if (window.CONFIG && CONFIG.COLOR_PRIMARIO) {

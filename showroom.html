@@ -15,7 +15,7 @@
     <script src="public-db.js"></script>
 
     <style>
-        :root { --brand-orange: #ff8801; }
+        :root { --brand-orange: #d65127; }
         body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         .font-title { font-family: 'Montserrat', sans-serif; }
 
@@ -31,7 +31,7 @@
             background: #f1f3f5; border: 2px solid transparent; font-size: 14px; outline: none;
             font-weight: 600; transition: all 0.3s; color: #1a202c;
         }
-        .filter-input:focus { border-color: var(--brand-orange); background: white; box-shadow: 0 0 0 4px rgba(255,136,1,0.1); }
+        .filter-input:focus { border-color: var(--brand-orange); background: white; box-shadow: 0 0 0 4px rgba(214, 81, 39,0.1); }
 
         /* Tarjetas de Vehículos */
         .car-card { background: white; border-radius: 32px; border: 1px solid #edf2f7; transition: all 0.4s ease; overflow: hidden; cursor: pointer; }
@@ -73,7 +73,7 @@
             background: #f1f3f5; font-size: 11px; font-weight: 800; text-transform: uppercase;
             letter-spacing: 1px; transition: all 0.3s; border: 2px solid transparent; color: #4a5568;
         }
-        .cat-btn.active { background: white; border-color: var(--brand-orange); color: black; box-shadow: 0 4px 12px rgba(255,136,1,0.15); }
+        .cat-btn.active { background: white; border-color: var(--brand-orange); color: black; box-shadow: 0 4px 12px rgba(214, 81, 39,0.15); }
 
         /* Ocultar scrollbar en el grid de categorías */
         .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -82,14 +82,14 @@
         /* Tutorial Styles */
         .tutorial-highlight {
             position: relative !important; z-index: 160 !important;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 136, 1, 0.6) !important;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8), 0 0 30px rgba(214, 81, 39, 0.6) !important;
             outline: 4px solid var(--brand-orange) !important;
             background-color: white !important; border-radius: 24px;
         }
         #tutorial-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.8); z-index: 150; display: none; }
         #tutorial-bubble {
             position: fixed; z-index: 200; background: white; padding: 25px; border-radius: 30px;
-            width: 280px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); display: none; border-l-8 border-[#ff8801];
+            width: 280px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); display: none; border-l-8 border-[#d65127];
         }
     </style>
 </head>
@@ -99,7 +99,7 @@
     <div id="tutorial-overlay"></div>
     <div id="tutorial-bubble">
         <div class="flex items-center gap-3 mb-3">
-            <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-[#ff8801]">
+            <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center text-[#d65127]">
                 <i class="fa-solid fa-robot"></i>
             </div>
             <span class="text-[10px] font-black uppercase tracking-widest text-gray-400">Asistente Virtual</span>
@@ -120,7 +120,7 @@
             <div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
                 <img src="multiamerica_logo.png" alt="Multiamerica Logo" class="h-8 md:h-10 object-contain drop-shadow-sm">
                 <h1 class="hidden sm:block text-lg md:text-xl font-title font-black tracking-tighter uppercase italic leading-none">
-                    MULTI<span class="text-[#ff8801]">AMERICA VEHICULOS</span>
+                    MULTI<span class="text-[#d65127]">AMERICA VEHICULOS</span>
                 </h1>
             </div>
         </div>
@@ -128,15 +128,15 @@
         <div class="flex items-center gap-2 md:gap-3">
             
             <!-- Botón del Tutorial (Agregado aquí) -->
-            <button onclick="iniciarTutorial()" class="bg-white border border-gray-200 text-black px-3 md:px-4 py-2.5 rounded-full flex items-center gap-2 shadow-sm hover:border-[#ff8801] transition-all active:scale-95">
-                <i class="fa-solid fa-robot text-[#ff8801] animate-bounce"></i>
+            <button onclick="iniciarTutorial()" class="bg-white border border-gray-200 text-black px-3 md:px-4 py-2.5 rounded-full flex items-center gap-2 shadow-sm hover:border-[#d65127] transition-all active:scale-95">
+                <i class="fa-solid fa-robot text-[#d65127] animate-bounce"></i>
                 <span class="hidden md:inline text-[10px] font-black uppercase tracking-tighter">Guía Rápida</span>
             </button>
 
             <button id="btn-filtros" onclick="toggleFilters()" class="bg-black text-white px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-2 active:scale-95 transition-all shadow-md hover:bg-gray-800">
                 <span class="hidden md:inline">Filtros Avanzados</span>
                 <span class="md:hidden">Filtros</span>
-                <i class="fa-solid fa-sliders text-[#ff8801]"></i>
+                <i class="fa-solid fa-sliders text-[#d65127]"></i>
             </button>
         </div>
     </nav>
@@ -146,7 +146,7 @@
         <div class="flex flex-col md:flex-row gap-6 items-center justify-between">
             <div id="buscador-container" class="w-full md:w-2/3 relative">
                 <input type="text" id="buscador" placeholder="Busca por marca, modelo o año..." 
-                    class="w-full p-5 pl-14 rounded-full bg-white border border-gray-200 shadow-sm outline-none text-base font-medium focus:border-[#ff8801] focus:ring-4 focus:ring-[#ff8801]/10 transition-all">
+                    class="w-full p-5 pl-14 rounded-full bg-white border border-gray-200 shadow-sm outline-none text-base font-medium focus:border-[#d65127] focus:ring-4 focus:ring-[#d65127]/10 transition-all">
                 <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
             </div>
             
@@ -166,7 +166,7 @@
     <!-- Drawer de Filtros Laterales -->
     <aside id="filter-drawer" class="fixed top-0 right-0 h-full w-full max-w-sm z-[100] bg-white/95 backdrop-blur-xl border-l border-gray-200 shadow-2xl flex flex-col">
         <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-            <h2 class="font-title font-black uppercase italic text-xl tracking-tighter">Filtros <span class="text-[#ff8801]">Pro</span></h2>
+            <h2 class="font-title font-black uppercase italic text-xl tracking-tighter">Filtros <span class="text-[#d65127]">Pro</span></h2>
             <button onclick="toggleFilters()" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-black transition-all">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
@@ -214,14 +214,14 @@
 
         <div class="p-6 border-t border-gray-100 flex gap-3 bg-white">
             <button onclick="resetFiltros()" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-gray-500 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-all">Limpiar</button>
-            <button onclick="aplicarFiltrosDrawer()" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-black bg-[#ff8801] rounded-2xl shadow-[0_10px_20px_rgba(255,136,1,0.2)] hover:scale-105 active:scale-95 transition-all">Aplicar</button>
+            <button onclick="aplicarFiltrosDrawer()" class="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-black bg-[#d65127] rounded-2xl shadow-[0_10px_20px_rgba(214, 81, 39,0.2)] hover:scale-105 active:scale-95 transition-all">Aplicar</button>
         </div>
     </aside>
 
     <!-- Panel de Carrito / Checkout (Flotante) -->
     <div id="cart-panel" class="fixed bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 w-[94%] max-w-3xl bg-white/95 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.15)] p-4 rounded-[28px] md:rounded-[32px] z-[90] border border-gray-200">
         <div class="flex items-center gap-3 mb-3 md:hidden">
-            <div class="w-10 h-10 bg-black text-[#ff8801] rounded-full flex items-center justify-center text-lg shadow-inner flex-shrink-0">
+            <div class="w-10 h-10 bg-black text-[#d65127] rounded-full flex items-center justify-center text-lg shadow-inner flex-shrink-0">
                 <i class="fa-solid fa-garage"></i>
             </div>
             <div class="flex flex-col">
@@ -231,7 +231,7 @@
         </div>
         <div class="flex items-center gap-3">
             <div class="hidden md:flex items-center gap-3 pl-1 pr-3 flex-shrink-0 border-r border-gray-200">
-                <div class="w-12 h-12 bg-black text-[#ff8801] rounded-full flex items-center justify-center text-xl shadow-inner">
+                <div class="w-12 h-12 bg-black text-[#d65127] rounded-full flex items-center justify-center text-xl shadow-inner">
                     <i class="fa-solid fa-garage"></i>
                 </div>
                 <div class="flex flex-col">
@@ -241,12 +241,12 @@
             </div>
             <div class="grid grid-cols-3 md:flex flex-1 gap-2">
                 <button onclick="abrirChatConSeleccion()" class="cart-action-btn bg-gray-100 text-black hover:bg-gray-200">
-                    <i class="fa-solid fa-robot text-[#ff8801]"></i> <span>Asesor IA</span>
+                    <i class="fa-solid fa-robot text-[#d65127]"></i> <span>Asesor IA</span>
                 </button>
                 <button onclick="abrirModalConsulta()" class="cart-action-btn bg-black text-white hover:bg-gray-800">
-                    <i class="fa-solid fa-headset text-[#ff8801]"></i> <span>Consultar</span>
+                    <i class="fa-solid fa-headset text-[#d65127]"></i> <span>Consultar</span>
                 </button>
-                <button onclick="irAlCheckout()" class="cart-action-btn bg-[#ff8801] text-black hover:bg-black hover:text-white shadow-[0_5px_15px_rgba(255,136,1,0.3)]">
+                <button onclick="irAlCheckout()" class="cart-action-btn bg-[#d65127] text-black hover:bg-black hover:text-white shadow-[0_5px_15px_rgba(214, 81, 39,0.3)]">
                     <i class="fa-solid fa-calendar-check"></i> <span>Agendar</span>
                 </button>
             </div>
@@ -257,7 +257,7 @@
     <div id="modal-consulta" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[200] hidden items-center justify-center p-6">
         <div class="bg-white rounded-[32px] p-8 max-w-sm w-full shadow-2xl">
             <div class="flex justify-between items-center mb-2">
-                <h3 class="font-title font-black uppercase italic text-xl tracking-tighter">Hablemos de tu <span class="text-[#ff8801]">selección</span></h3>
+                <h3 class="font-title font-black uppercase italic text-xl tracking-tighter">Hablemos de tu <span class="text-[#d65127]">selección</span></h3>
                 <button onclick="cerrarModalConsulta()" class="w-9 h-9 flex-shrink-0 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 hover:text-black transition-all">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
@@ -268,16 +268,16 @@
 
             <form id="form-consulta" onsubmit="enviarConsulta(event)" class="flex flex-col gap-3">
                 <input type="text" id="consulta-nombre" required placeholder="Tu nombre"
-                    class="w-full p-4 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-[#ff8801] outline-none text-sm font-bold transition-all">
+                    class="w-full p-4 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-[#d65127] outline-none text-sm font-bold transition-all">
                 <input type="tel" id="consulta-telefono" required placeholder="Tu WhatsApp (ej: 0414...)"
-                    class="w-full p-4 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-[#ff8801] outline-none text-sm font-bold transition-all">
-                <button type="submit" id="btn-enviar-consulta" class="mt-2 w-full bg-black text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest active:scale-95 transition-all hover:bg-[#ff8801] hover:text-black">
+                    class="w-full p-4 rounded-2xl bg-gray-50 border-2 border-transparent focus:border-[#d65127] outline-none text-sm font-bold transition-all">
+                <button type="submit" id="btn-enviar-consulta" class="mt-2 w-full bg-black text-white py-4 rounded-2xl font-black uppercase text-xs tracking-widest active:scale-95 transition-all hover:bg-[#d65127] hover:text-black">
                     Solicitar Contacto
                 </button>
             </form>
 
             <div id="consulta-exito" class="hidden text-center py-4">
-                <div class="w-16 h-16 bg-orange-50 text-[#ff8801] rounded-full flex items-center justify-center mx-auto text-3xl mb-4"><i class="fa-solid fa-check"></i></div>
+                <div class="w-16 h-16 bg-orange-50 text-[#d65127] rounded-full flex items-center justify-center mx-auto text-3xl mb-4"><i class="fa-solid fa-check"></i></div>
                 <p id="consulta-exito-texto" class="text-sm font-bold text-gray-800 leading-relaxed"></p>
                 <button onclick="cerrarModalConsulta()" class="mt-6 w-full bg-gray-100 text-black py-4 rounded-2xl font-black uppercase text-xs tracking-widest active:scale-95 transition-all hover:bg-gray-200">
                     Cerrar

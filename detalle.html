@@ -13,7 +13,7 @@
     <script src="public-db.js"></script>
     
     <style>
-        :root { --brand-orange: #ff8801; } 
+        :root { --brand-orange: #d65127; } 
         body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; color: #111; overflow-x: hidden; }
         .font-title { font-family: 'Montserrat', sans-serif; }
         
@@ -22,7 +22,7 @@
         .btn-ws:hover { background: #1ebd5c; transform: translateY(-2px); box-shadow: 0 15px 30px -5px rgba(37, 211, 102, 0.4); }
         
         .text-brand { color: var(--brand-orange); }
-        .bg-brand-light { background-color: rgba(255, 136, 1, 0.1); }
+        .bg-brand-light { background-color: rgba(214, 81, 39, 0.1); }
         
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -34,7 +34,7 @@
 <body class="pb-10">
 
     <nav class="sticky top-0 z-50 glass px-6 py-4 flex justify-between items-center transition-all">
-        <button onclick="volver()" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:text-[#ff8801] transition-colors bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm">
+        <button onclick="volver()" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:text-[#d65127] transition-colors bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm">
             <i class="fa-solid fa-arrow-left"></i> Volver
         </button>
         <h1 class="text-sm font-title font-black tracking-tighter uppercase italic">MULTI<span class="text-brand">AMERICA</span></h1>
@@ -133,7 +133,7 @@
                         <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
                             ${fotosArray.map(f => `
                                 <img src="${getFotoUrl(f)}" onclick="document.getElementById('main-img').src='${getFotoUrl(f)}'" 
-                                    class="w-24 h-20 rounded-2xl object-cover cursor-pointer border-2 border-transparent hover:border-[#ff8801] transition-all opacity-60 hover:opacity-100">
+                                    class="w-24 h-20 rounded-2xl object-cover cursor-pointer border-2 border-transparent hover:border-[#d65127] transition-all opacity-60 hover:opacity-100">
                             `).join('')}
                         </div>` : ''}
                     </div>
@@ -141,7 +141,7 @@
                     <div class="lg:col-span-5 flex flex-col justify-center">
                         <div class="flex items-center gap-3 mb-6">
                             <span class="px-4 py-1.5 rounded-full bg-brand-light text-brand text-[9px] font-black uppercase tracking-widest flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-[#ff8801] animate-pulse"></span> DISPONIBLE
+                                <span class="w-2 h-2 rounded-full bg-[#d65127] animate-pulse"></span> DISPONIBLE
                             </span>
                             <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Stock: ${carro.anio || 'N/A'}</span>
                         </div>

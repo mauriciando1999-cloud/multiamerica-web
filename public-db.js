@@ -4,7 +4,7 @@ var CONFIG = {
     SUPABASE_URL: 'https://zamiahmbgwqiralxinju.supabase.co',
     SUPABASE_KEY: 'sb_publishable_GF4Xma460bOVv9WT64Q-cA_r-0DUHHX',
     NUMERO_PROPIETARIO: "584123768312", 
-    COLOR_PRIMARIO: "#ff8801", 
+    COLOR_PRIMARIO: "#d65127", 
     NOMBRE_EMPRESA: "Multiamerica Vehiculos"
 };
 

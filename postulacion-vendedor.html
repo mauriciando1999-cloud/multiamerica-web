@@ -21,7 +21,7 @@
         }
         .bg-grid { 
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background-image: radial-gradient(circle, rgba(255,136,1,0.15) 1px, transparent 1px); 
+            background-image: radial-gradient(circle, rgba(214, 81, 39,0.15) 1px, transparent 1px); 
             background-size: 40px 40px; 
             z-index: -1; pointer-events: none;
         }
@@ -31,7 +31,7 @@
             background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 1rem; border-radius: 16px; width: 100%; color: #fff; outline: none; transition: 0.3s;
         }
-        .input-box:focus { border-color: #ff8801; background: rgba(255, 136, 1, 0.05); box-shadow: 0 0 15px rgba(255,136,1,0.1); }
+        .input-box:focus { border-color: #d65127; background: rgba(214, 81, 39, 0.05); box-shadow: 0 0 15px rgba(214, 81, 39,0.1); }
         
         /* ANIMACIÓN MODAL */
         .modal-enter { animation: modalFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -51,14 +51,14 @@
 
     <main class="max-w-3xl w-full relative z-10">
         <header class="text-center mb-12">
-            <h2 class="text-5xl font-black italic uppercase tracking-tighter">Ficha de <span class="text-[#ff8801]">Admisión</span></h2>
+            <h2 class="text-5xl font-black italic uppercase tracking-tighter">Ficha de <span class="text-[#d65127]">Admisión</span></h2>
             <p class="text-gray-500 text-[10px] mt-4 uppercase tracking-[0.4em] font-bold">Sistema de Reclutamiento AI</p>
         </header>
 
         <form id="form-postulante" class="bg-[#0a0a0a]/60 backdrop-blur-3xl border border-white/10 p-8 md:p-14 rounded-[50px] shadow-2xl space-y-8">
             
             <div class="flex flex-col items-center">
-                <div class="w-32 h-32 rounded-full border-2 border-dashed border-[#ff8801] flex items-center justify-center overflow-hidden bg-white/5 cursor-pointer relative group transition-all hover:bg-white/10 hover:scale-105" onclick="document.getElementById('v-foto').click()">
+                <div class="w-32 h-32 rounded-full border-2 border-dashed border-[#d65127] flex items-center justify-center overflow-hidden bg-white/5 cursor-pointer relative group transition-all hover:bg-white/10 hover:scale-105" onclick="document.getElementById('v-foto').click()">
                     <img id="preview-foto" class="hidden w-full h-full object-cover">
                     <span id="label-foto" class="text-[9px] font-black uppercase text-gray-400 text-center group-hover:text-white transition-colors">Subir Foto</span>
                 </div>
@@ -73,30 +73,30 @@
                 <input type="text" id="v-experiencia" class="input-box" placeholder="Años de experiencia" required>
             </div>
 
-            <div class="border-2 border-dashed border-white/10 rounded-2xl p-8 text-center cursor-pointer hover:border-[#ff8801] transition-all bg-white/5 hover:bg-[#ff8801]/5" onclick="document.getElementById('v-cv').click()">
+            <div class="border-2 border-dashed border-white/10 rounded-2xl p-8 text-center cursor-pointer hover:border-[#d65127] transition-all bg-white/5 hover:bg-[#d65127]/5" onclick="document.getElementById('v-cv').click()">
                 <input type="file" id="v-cv" class="hidden" accept=".pdf" required>
                 <p id="label-cv" class="text-[10px] font-bold text-gray-400 uppercase tracking-widest italic">Adjuntar CV (Formato PDF)</p>
             </div>
 
             <textarea id="v-descripcion" class="input-box h-32 resize-none" placeholder="Descripción profesional (Destaca tus habilidades principales)..." required></textarea>
 
-            <button type="submit" class="w-full bg-[#ff8801] text-black font-black uppercase italic tracking-[0.2em] py-5 rounded-2xl hover:bg-white transition-all transform active:scale-95 shadow-[0_0_30px_rgba(255,136,1,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.4)]">
+            <button type="submit" class="w-full bg-[#d65127] text-black font-black uppercase italic tracking-[0.2em] py-5 rounded-2xl hover:bg-white transition-all transform active:scale-95 shadow-[0_0_30px_rgba(214, 81, 39,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.4)]">
                 Enviar Aplicación ➔
             </button>
         </form>
     </main>
 
     <div id="modal-exito" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-[#0a0a0a] border border-white/10 max-w-md w-full rounded-[40px] p-10 text-center modal-enter shadow-[0_0_50px_rgba(255,136,1,0.1)]">
-            <div class="w-20 h-20 border-2 border-dashed border-[#ff8801] rounded-full flex items-center justify-center mx-auto mb-6 bg-[#ff8801]/10">
-                <i class="fa-solid fa-check text-2xl text-[#ff8801]"></i>
+        <div class="bg-[#0a0a0a] border border-white/10 max-w-md w-full rounded-[40px] p-10 text-center modal-enter shadow-[0_0_50px_rgba(214, 81, 39,0.1)]">
+            <div class="w-20 h-20 border-2 border-dashed border-[#d65127] rounded-full flex items-center justify-center mx-auto mb-6 bg-[#d65127]/10">
+                <i class="fa-solid fa-check text-2xl text-[#d65127]"></i>
             </div>
             <h2 class="text-2xl font-black uppercase italic mb-4">Aplicación Recibida</h2>
             <p class="text-gray-400 text-sm leading-relaxed mb-8">
                 Tu ficha de admisión y documentos han sido enviados a nuestro sistema de evaluación.<br><br>
                 <span class="text-white font-bold tracking-wide">Te notificaremos los resultados y siguientes pasos a tu correo electrónico.</span>
             </p>
-            <button onclick="cerrarModal()" class="w-full bg-[#ff8801] text-black py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white transition-all">
+            <button onclick="cerrarModal()" class="w-full bg-[#d65127] text-black py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white transition-all">
                 Entendido
             </button>
         </div>
@@ -128,7 +128,7 @@
 
             document.getElementById('v-cv').onchange = (e) => {
                 if(e.target.files.length > 0) {
-                    document.getElementById('label-cv').innerHTML = `<span class="text-[#ff8801]">✓</span> ${e.target.files[0].name}`;
+                    document.getElementById('label-cv').innerHTML = `<span class="text-[#d65127]">✓</span> ${e.target.files[0].name}`;
                     document.getElementById('label-cv').classList.replace('text-gray-400', 'text-white');
                 }
             };

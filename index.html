@@ -16,7 +16,7 @@
     <script src="public-db.js"></script>
 
     <style>
-        :root { --brand-orange: #ff8801; }
+        :root { --brand-orange: #d65127; }
         /* Fondo claro para toda la web */
         body { font-family: 'Inter', sans-serif; background-color: #f8f9fa; color: #111827; overflow-x: hidden; margin: 0; }
         .font-title { font-family: 'Montserrat', sans-serif; }
@@ -76,10 +76,10 @@
 
     <!-- PANTALLA DE CARGA EN NEGRO -->
     <div id="enter-screen" onclick="iniciarConSonido()">
-        <img src="multiamerica_logo.png" onerror="this.style.display='none'" class="w-40 md:w-64 mb-6 drop-shadow-[0_0_40px_rgba(255,136,1,0.4)]" alt="Multiamerica Logo">
+        <img src="multiamerica_logo.png" onerror="this.style.display='none'" class="w-40 md:w-64 mb-6 drop-shadow-[0_0_40px_rgba(214, 81, 39,0.4)]" alt="Multiamerica Logo">
         
         <div class="flex items-center gap-3 animate-pulse mt-8">
-            <span class="w-2 h-2 bg-[#ff8801] rounded-full"></span>
+            <span class="w-2 h-2 bg-[#d65127] rounded-full"></span>
             <p class="text-[10px] md:text-xs text-gray-400 uppercase tracking-[0.3em] font-bold">Toca la pantalla para iniciar</p>
         </div>
     </div>
@@ -99,7 +99,7 @@
         <div class="flex items-center gap-4 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
             <!-- LOGO CORREGIDO: Sin brightness-0 para que se vea a color y con sombra -->
             <img src="multiamerica_logo.png" alt="Multiamerica" class="h-10 md:h-14 object-contain drop-shadow-[0_2px_10px_rgba(0,0,0,0.15)]">
-            <div class="hidden sm:block text-2xl font-black italic uppercase tracking-tighter text-black">MULTI<span class="text-[#ff8801]">AMERICA</span></div>
+            <div class="hidden sm:block text-2xl font-black italic uppercase tracking-tighter text-black">MULTI<span class="text-[#d65127]">AMERICA</span></div>
         </div>
 
         <div class="flex items-center gap-6">
@@ -107,7 +107,7 @@
                 <a href="showroom.html" class="hover:text-black transition-colors">Showroom</a>
                 <a href="concesionar.html" class="hover:text-black transition-colors">Consignación</a>
             </div>
-            <button onclick="window.location.href='showroom.html'" class="bg-black text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-[#ff8801] hover:text-black transition-all shadow-lg active:scale-95">
+            <button onclick="window.location.href='showroom.html'" class="bg-black text-white px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-[#d65127] hover:text-black transition-all shadow-lg active:scale-95">
                 Ver Inventario
             </button>
         </div>
@@ -138,7 +138,7 @@
 
             <div class="reveal-text-wrapper mt-10">
                 <div class="reveal-text flex flex-wrap gap-4">
-                    <button onclick="window.location.href='showroom.html'" class="bg-[#ff8801] text-black font-black uppercase tracking-widest text-xs px-8 md:px-12 py-5 rounded-full hover:bg-black hover:text-white transition-all shadow-[0_10px_30px_rgba(255,136,1,0.3)] hover:scale-105 active:scale-95">
+                    <button onclick="window.location.href='showroom.html'" class="bg-[#d65127] text-black font-black uppercase tracking-widest text-xs px-8 md:px-12 py-5 rounded-full hover:bg-black hover:text-white transition-all shadow-[0_10px_30px_rgba(214, 81, 39,0.3)] hover:scale-105 active:scale-95">
                         Comprar un Vehículo (Showroom)
                     </button>
                     <button onclick="window.location.href='concesionar.html'" class="bg-transparent text-black border-2 border-black font-black uppercase tracking-widest text-xs px-8 md:px-12 py-5 rounded-full hover:bg-black hover:text-white transition-all hover:scale-105 active:scale-95">
@@ -151,7 +151,7 @@
 
     <!-- RECLUTAMIENTO CLARO -->
     <section id="reclutamiento-section" class="relative py-24 md:py-32 wall-texture overflow-hidden border-t border-gray-200">
-        <div class="absolute top-0 left-0 w-full md:w-1/2 h-full bg-[#ff8801]/5 blur-[150px] pointer-events-none"></div>
+        <div class="absolute top-0 left-0 w-full md:w-1/2 h-full bg-[#d65127]/5 blur-[150px] pointer-events-none"></div>
 
         <div class="max-w-7xl mx-auto px-6 relative z-10 grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
             
@@ -170,21 +170,21 @@
                 </div>
                 
                 <h2 class="text-5xl md:text-7xl font-title font-black uppercase italic tracking-tighter leading-[0.9] text-black">
-                    TE NECESITAMOS <br><span class="text-[#ff8801]">A TI.</span>
+                    TE NECESITAMOS <br><span class="text-[#d65127]">A TI.</span>
                 </h2>
                 
                 <p class="text-gray-600 text-sm md:text-lg font-medium max-w-md mx-auto lg:mx-0 leading-relaxed">
                     Buscamos a los mejores cerradores del país. Únete a la red comercial más exclusiva, accede a nuestro inventario premium y gana las comisiones más altas del mercado.
                 </p>
 
-                <ul class="text-black text-sm md:text-base space-y-4 mt-6 text-left max-w-md mx-auto lg:mx-0 border-l-2 border-[#ff8801] pl-6">
+                <ul class="text-black text-sm md:text-base space-y-4 mt-6 text-left max-w-md mx-auto lg:mx-0 border-l-2 border-[#d65127] pl-6">
                     <li><strong class="text-black">Inventario Premium:</strong> Autos de lujo listos para entrega inmediata.</li>
                     <li><strong class="text-black">Seguridad Total:</strong> Cierres blindados jurídicamente.</li>
                     <li><strong class="text-black">Gerencia Asistida:</strong> Apoyo directivo para concretar tus negocios.</li>
                 </ul>
 
                 <div class="pt-8">
-                    <button onclick="window.location.href='postulacion-vendedor.html'" class="w-full lg:w-auto bg-[#ff8801] text-black font-black uppercase tracking-widest text-xs px-12 py-5 rounded-2xl hover:bg-black hover:text-white transition-all shadow-[0_10px_30px_rgba(255,136,1,0.3)] hover:scale-105 active:scale-95 flex items-center justify-center gap-3 mx-auto lg:mx-0">
+                    <button onclick="window.location.href='postulacion-vendedor.html'" class="w-full lg:w-auto bg-[#d65127] text-black font-black uppercase tracking-widest text-xs px-12 py-5 rounded-2xl hover:bg-black hover:text-white transition-all shadow-[0_10px_30px_rgba(214, 81, 39,0.3)] hover:scale-105 active:scale-95 flex items-center justify-center gap-3 mx-auto lg:mx-0">
                         <i class="fa-solid fa-file-arrow-up text-lg"></i> Enviar Curriculum
                     </button>
                 </div>
@@ -197,10 +197,10 @@
         <div class="max-w-7xl mx-auto">
             <div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-6 gs-reveal">
                 <div>
-                    <span class="text-[#ff8801] font-black uppercase tracking-[0.3em] text-[10px]">Stock Reciente</span>
+                    <span class="text-[#d65127] font-black uppercase tracking-[0.3em] text-[10px]">Stock Reciente</span>
                     <h2 class="fluid-h2 font-title font-black uppercase italic leading-none mt-2 tracking-tighter text-black">RECIÉN <br>LLEGADOS.</h2>
                 </div>
-                <a href="showroom.html" class="group flex items-center gap-3 text-xs font-black uppercase tracking-widest border-b-2 border-black pb-2 hover:text-[#ff8801] hover:border-[#ff8801] transition-all text-black">
+                <a href="showroom.html" class="group flex items-center gap-3 text-xs font-black uppercase tracking-widest border-b-2 border-black pb-2 hover:text-[#d65127] hover:border-[#d65127] transition-all text-black">
                     Ver Catálogo Completo <span class="group-hover:translate-x-2 transition-transform">→</span>
                 </a>
             </div>
@@ -362,7 +362,7 @@
                                     <img src="${fotoFinal}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
                                     <div class="absolute bottom-8 left-8 right-8">
-                                        <p class="text-[#ff8801] font-black text-[10px] uppercase tracking-widest mb-1">${carro.anio} • ${carro.transmision || 'Auto'}</p>
+                                        <p class="text-[#d65127] font-black text-[10px] uppercase tracking-widest mb-1">${carro.anio} • ${carro.transmision || 'Auto'}</p>
                                         <h3 class="text-white text-3xl md:text-4xl font-title font-black uppercase italic leading-none tracking-tighter">${carro.marca} <br> <span class="text-gray-300">${carro.modelo}</span></h3>
                                     </div>
                                 </div>

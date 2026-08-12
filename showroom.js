@@ -143,7 +143,7 @@ function renderGrid(datos) {
                 <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center text-3xl text-gray-300 mb-4"><i class="fa-solid fa-car-tunnel"></i></div>
                 <h3 class="font-title font-black uppercase italic text-2xl text-gray-400">Sin coincidencias</h3>
                 <p class="text-sm text-gray-400 mt-2 font-medium">Intenta ajustar los filtros o el rango de años.</p>
-                <button onclick="resetFiltros()" class="mt-6 text-[#ff8801] font-bold text-xs uppercase tracking-widest hover:underline">Limpiar Filtros</button>
+                <button onclick="resetFiltros()" class="mt-6 text-[#d65127] font-bold text-xs uppercase tracking-widest hover:underline">Limpiar Filtros</button>
             </div>`;
         return;
     }
@@ -178,14 +178,14 @@ function renderGrid(datos) {
                 ` : ''}
                 
                 <!-- IMPORTANTE: se añadió 'btn-add-cart' a la clase para el selector del tutorial -->
-                <button onclick="toggleSeleccion('${carro.id}', event)" class="btn-add-cart absolute top-3 right-3 z-20 w-11 h-11 flex items-center justify-center rounded-2xl backdrop-blur-md shadow-xl transition-all ${inCart ? 'bg-[#ff8801] text-black scale-105' : 'bg-white/90 text-black hover:bg-black hover:text-white'}">
+                <button onclick="toggleSeleccion('${carro.id}', event)" class="btn-add-cart absolute top-3 right-3 z-20 w-11 h-11 flex items-center justify-center rounded-2xl backdrop-blur-md shadow-xl transition-all ${inCart ? 'bg-[#d65127] text-black scale-105' : 'bg-white/90 text-black hover:bg-black hover:text-white'}">
                     <i class="fa-solid ${inCart ? 'fa-check' : 'fa-plus'} text-lg"></i>
                 </button>
             </div>
 
             <div class="p-5 pt-3 flex flex-col flex-1" onclick="window.location.href='detalle.html?id=${carro.id}'">
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="font-black text-xl uppercase italic leading-tight text-gray-900 truncate pr-2">${carro.marca} <span class="text-[#ff8801]">${carro.modelo}</span></h3>
+                    <h3 class="font-black text-xl uppercase italic leading-tight text-gray-900 truncate pr-2">${carro.marca} <span class="text-[#d65127]">${carro.modelo}</span></h3>
                 </div>
                 
                 <div class="flex flex-wrap gap-2 mb-4">

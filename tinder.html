@@ -13,7 +13,7 @@
     <script src="public-db.js"></script>
 
     <style>
-        :root { --brand-orange: #ff8801; }
+        :root { --brand-orange: #d65127; }
         body { 
             background-color: #ffffff; /* Fondo oscuro premium */
             font-family: 'Inter', sans-serif; 
@@ -99,28 +99,28 @@
             <i class="fa-solid fa-arrow-left"></i>
         </button>
         <div>
-            <h1 class="text-xl font-title font-black uppercase italic tracking-tighter text-white">Cars<span class="text-[#ff8801]">Match</span> <i class="fa-solid fa-fire text-[#ff8801]"></i></h1>
+            <h1 class="text-xl font-title font-black uppercase italic tracking-tighter text-white">Cars<span class="text-[#d65127]">Match</span> <i class="fa-solid fa-fire text-[#d65127]"></i></h1>
         </div>
         <button onclick="window.location.href='checkout.html'" class="relative w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-black transition-all hover:scale-105">
             <i class="fa-solid fa-garage"></i>
-            <span id="cart-badge" class="absolute -top-1 -right-1 bg-[#ff8801] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">0</span>
+            <span id="cart-badge" class="absolute -top-1 -right-1 bg-[#d65127] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">0</span>
         </button>
     </header>
 
     <main class="flex-1 flex flex-col items-center justify-center px-4 w-full relative">
         
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#ff8801_0%,transparent_60%)] opacity-10 pointer-events-none"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,#d65127_0%,transparent_60%)] opacity-10 pointer-events-none"></div>
 
         <div id="tinder-container" class="tinder-container">
             <div id="loading" class="absolute inset-0 flex flex-col items-center justify-center bg-white/5 backdrop-blur-md rounded-[40px] border border-white/10 text-center">
-                <i class="fa-solid fa-radar text-4xl text-[#ff8801] animate-spin mb-4"></i>
+                <i class="fa-solid fa-radar text-4xl text-[#d65127] animate-spin mb-4"></i>
                 <p class="text-xs font-black uppercase tracking-widest text-gray-400">Analizando Inventario...</p>
             </div>
         </div>
 
         <div class="flex items-center justify-center gap-6 mt-8 w-full max-w-sm z-50 relative">
             <button onclick="deslizarBoton(false)" class="action-btn btn-nope"><i class="fa-solid fa-xmark"></i></button>
-            <button onclick="window.location.href='chatia.html?cart=true'" class="action-btn btn-super shadow-[0_0_20px_rgba(255,136,1,0.4)]">
+            <button onclick="window.location.href='chatia.html?cart=true'" class="action-btn btn-super shadow-[0_0_20px_rgba(214, 81, 39,0.4)]">
                 <i class="fa-solid fa-robot"></i>
             </button>
             <button onclick="deslizarBoton(true)" class="action-btn btn-like"><i class="fa-solid fa-heart"></i></button>
@@ -130,10 +130,10 @@
     <div id="match-screen" class="match-overlay fixed inset-0 bg-black/90 backdrop-blur-md">
         <h2 class="font-title font-black italic text-6xl text-white tracking-tighter mb-2">¡MATCH!</h2>
         <p class="text-gray-300 font-bold uppercase text-xs tracking-widest mb-8 text-center px-4">La IA ha guardado este vehículo en tu selección.</p>
-        <img id="match-img" src="" class="w-64 h-64 object-cover rounded-full border-4 border-[#ff8801] shadow-[0_0_50px_rgba(255,136,1,0.5)] mb-8">
+        <img id="match-img" src="" class="w-64 h-64 object-cover rounded-full border-4 border-[#d65127] shadow-[0_0_50px_rgba(214, 81, 39,0.5)] mb-8">
         
         <div class="flex flex-col gap-3 w-full max-w-xs px-6">
-            <button onclick="cerrarMatch()" class="w-full py-4 bg-[#ff8801] text-black rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg hover:bg-white transition-all">
+            <button onclick="cerrarMatch()" class="w-full py-4 bg-[#d65127] text-black rounded-2xl font-black uppercase text-xs tracking-widest shadow-lg hover:bg-white transition-all">
                 Seguir Buscando
             </button>
             <button onclick="window.location.href='chatia.html?cart=true'" class="w-full py-4 bg-transparent border-2 border-white/20 text-white rounded-2xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-2 hover:bg-white/10 transition-all">
@@ -194,7 +194,7 @@
             if (inventario.length === 0 || indexActual >= inventario.length) {
                 container.innerHTML = `
                     <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/10 backdrop-blur-md rounded-[40px] border border-white/20 p-6 text-center text-white">
-                        <div class="w-20 h-20 bg-[#ff8801] text-black rounded-full flex items-center justify-center text-3xl mb-6 shadow-[0_0_30px_rgba(255,136,1,0.5)]">
+                        <div class="w-20 h-20 bg-[#d65127] text-black rounded-full flex items-center justify-center text-3xl mb-6 shadow-[0_0_30px_rgba(214, 81, 39,0.5)]">
                             <i class="fa-solid fa-flag-checkered"></i>
                         </div>
                         <h3 class="font-black text-3xl italic uppercase tracking-tighter">¡Viste todo!</h3>
@@ -244,7 +244,7 @@
                             <div class="mt-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 flex justify-between items-center pointer-events-auto">
                                 <div>
                                     <p class="text-[9px] uppercase font-bold text-gray-300 tracking-[2px]">Valor Estimado</p>
-                                    <p class="text-2xl font-black text-[#ff8801] drop-shadow-md">${currency.format(auto.precio_venta || 0)}</p>
+                                    <p class="text-2xl font-black text-[#d65127] drop-shadow-md">${currency.format(auto.precio_venta || 0)}</p>
                                 </div>
                                 <button onclick="event.stopPropagation(); window.location.href='detalle.html?id=${auto.id}'" class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-all">
                                     <i class="fa-solid fa-info"></i>

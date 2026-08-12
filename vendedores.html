@@ -8,11 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;900&display=swap" rel="stylesheet">
     <style>
-        :root { --brand-orange: #ff8801; }
+        :root { --brand-orange: #d65127; }
         body { font-family: 'Inter', sans-serif; background-color: #fcfcfc; color: #1a1a1a; }
         .glass-card { background: white; border: 1px solid #f0f0f0; box-shadow: 0 20px 40px rgba(0,0,0,0.04); }
         input, select { border: 1.5px solid #eee !important; transition: all 0.3s ease; }
-        input:focus, select:focus { border-color: var(--brand-orange) !important; background-color: #fff; box-shadow: 0 0 0 4px rgba(255, 136, 1, 0.05); }
+        input:focus, select:focus { border-color: var(--brand-orange) !important; background-color: #fff; box-shadow: 0 0 0 4px rgba(214, 81, 39, 0.05); }
         .label-style { font-size: 10px; font-weight: 900; text-transform: uppercase; color: #9ca3af; margin-left: 8px; margin-bottom: 8px; display: block; letter-spacing: 0.5px; }
         
         /* Animación para el modal */
@@ -27,9 +27,9 @@
 
     <div class="text-center mb-10">
         <div class="text-3xl font-black italic uppercase tracking-tighter mb-4 text-black">
-            MULTI<span class="text-[#ff8801]">AMERICA</span>
+            MULTI<span class="text-[#d65127]">AMERICA</span>
         </div>
-        <div class="h-1 w-12 bg-[#ff8801] mx-auto rounded-full"></div>
+        <div class="h-1 w-12 bg-[#d65127] mx-auto rounded-full"></div>
     </div>
 
     <div class="max-w-xl w-full glass-card rounded-[40px] p-10 md:p-14">
@@ -88,13 +88,13 @@
             </div>
 
             <div class="pt-4 space-y-4">
-                <button type="submit" class="w-full bg-black text-white py-5 rounded-[24px] font-black uppercase tracking-widest hover:bg-[#ff8801] transition-all transform active:scale-95 shadow-xl">Generar mi Enlace</button>
-                <button type="button" onclick="recuperarEnlace()" class="w-full bg-white border border-gray-100 text-gray-400 py-4 rounded-[24px] text-[10px] font-black uppercase tracking-[2px] hover:text-[#ff8801]">Ya estoy registrado</button>
+                <button type="submit" class="w-full bg-black text-white py-5 rounded-[24px] font-black uppercase tracking-widest hover:bg-[#d65127] transition-all transform active:scale-95 shadow-xl">Generar mi Enlace</button>
+                <button type="button" onclick="recuperarEnlace()" class="w-full bg-white border border-gray-100 text-gray-400 py-4 rounded-[24px] text-[10px] font-black uppercase tracking-[2px] hover:text-[#d65127]">Ya estoy registrado</button>
             </div>
         </form>
 
         <div id="resultado-link" class="hidden mt-10 p-8 bg-gray-50 rounded-[32px] border-2 border-dashed border-orange-200 flex-col items-center">
-            <p class="text-[10px] font-black uppercase text-[#ff8801] mb-3 text-center">¡Enlace listo!</p>
+            <p class="text-[10px] font-black uppercase text-[#d65127] mb-3 text-center">¡Enlace listo!</p>
             <input type="text" id="link-final" readonly class="w-full bg-white p-4 rounded-xl border-none text-center font-mono text-[11px] mb-5 shadow-sm text-gray-600">
             <button onclick="copyLink(event)" class="w-full bg-black text-white py-4 rounded-xl text-[10px] font-black uppercase">Copiar Enlace</button>
         </div>
@@ -102,7 +102,7 @@
 
     <div id="modal-solicitud" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-6">
         <div class="bg-white max-w-md w-full rounded-[40px] p-10 text-center modal-enter shadow-2xl">
-            <div class="w-16 h-16 bg-orange-100 text-[#ff8801] rounded-full flex items-center justify-center mx-auto mb-6">
+            <div class="w-16 h-16 bg-orange-100 text-[#d65127] rounded-full flex items-center justify-center mx-auto mb-6">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>

@@ -225,9 +225,11 @@
 
             btn.innerText = "ASIGNANDO GERENTE...";
 
-            // 2. BUSCAR GERENTE AL AZAR desde la vista lista_gerentes (esta
-            // vista publica solo expone nombre/whatsapp/slug, nunca el
-            // email real). El slug se manda al Edge Function, que hace la
+            // 2. BUSCAR GERENTE desde la vista lista_gerentes (esta vista
+            // publica solo expone nombre/whatsapp/slug, nunca el email
+            // real). Si el cliente llego por el enlace personal de un
+            // gerente (showroom.html?v=slug), se lo asignamos a el en vez
+            // de al azar. El slug se manda al Edge Function, que hace la
             // asignacion real y la notificacion del lado del servidor.
             let nombreGerente = "Asesor Élite";
             let tlfGerente = "584123768312";
@@ -239,7 +241,9 @@
                     .select('nombre, apellido, whatsapp, slug');
 
                 if (!errG && gerentes && gerentes.length > 0) {
-                    const elegido = gerentes[Math.floor(Math.random() * gerentes.length)];
+                    const miVendedor = localStorage.getItem('last_vendedor');
+                    const match = miVendedor ? gerentes.find(g => g.slug === miVendedor) : null;
+                    const elegido = match || gerentes[Math.floor(Math.random() * gerentes.length)];
                     nombreGerente = `${elegido.nombre} ${elegido.apellido || ''}`.trim();
                     tlfGerente = elegido.whatsapp || tlfGerente;
                     slugGerente = elegido.slug || null;

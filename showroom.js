@@ -304,12 +304,11 @@ async function enviarConsulta(event) {
     try {
         const client = (typeof _supabase !== 'undefined') ? _supabase : supabase;
 
-        // Asignamos un gerente real (vista publica, filtra rol='gerente')
+        // Asignamos un gerente real (vista publica, filtra rol='gerente').
+        // Si el cliente llego por el enlace personal de un gerente
+        // (showroom.html?v=slug), se lo asignamos a el en vez de al azar.
         const { data: gerentes } = await client.from('lista_gerentes').select('slug, nombre, apellido');
-        let gerenteAsignado = null;
-        if (gerentes && gerentes.length > 0) {
-            gerenteAsignado = gerentes[Math.floor(Math.random() * gerentes.length)];
-        }
+        let gerenteAsignado = elegirGerenteAsignado(gerentes);
 
         // El registro real y la notificacion al gerente las hace el
         // Edge Function (con service_role) para no exponer emails
@@ -343,13 +342,30 @@ async function enviarConsulta(event) {
 // ==========================================
 // ATRIBUCIÓN (VENDEDOR)
 // ==========================================
+// Si el cliente entro por el enlace personal de un gerente
+// (?v=slug, guardado en localStorage al cargar el showroom), se lo
+// asignamos a el. Si no, o si ese gerente ya no esta activo, cae a
+// un pick al azar entre los gerentes disponibles.
+function elegirGerenteAsignado(gerentes) {
+    if (!gerentes || gerentes.length === 0) return null;
+    const miVendedor = localStorage.getItem('last_vendedor');
+    if (miVendedor) {
+        const match = gerentes.find(g => g.slug === miVendedor);
+        if (match) return match;
+    }
+    return gerentes[Math.floor(Math.random() * gerentes.length)];
+}
+
 async function inicializarAtribucion() {
     const params = new URLSearchParams(window.location.search);
     const vSlug = params.get('v');
     if (vSlug) {
         try {
             const client = (typeof _supabase !== 'undefined') ? _supabase : supabase;
-            const { data } = await client.from('vendedores').select('whatsapp, nombre').eq('slug', vSlug).eq('activo', true).single();
+            // 'vendedores' no es legible por visitantes anonimos (RLS);
+            // usamos la vista publica lista_gerentes, igual que checkout.html
+            // y concesionar.html.
+            const { data } = await client.from('lista_gerentes').select('whatsapp, nombre').eq('slug', vSlug).single();
             if (data) {
                 localStorage.setItem("ws_vendedor", data.whatsapp);
                 localStorage.setItem("nombre_vendedor", data.nombre);

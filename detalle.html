@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargando Vehículo... | Multiamerica</title>
+    <title>Cargando Vehículo... | Multiamerica Vehículos</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -37,7 +37,7 @@
         <button onclick="volver()" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:text-[#d65127] transition-colors bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm">
             <i class="fa-solid fa-arrow-left"></i> Volver
         </button>
-        <h1 class="text-sm font-title font-black tracking-tighter uppercase italic">MULTI<span class="text-brand">AMERICA</span></h1>
+        <h1 class="text-sm font-title font-black tracking-tighter uppercase italic">MULTI<span class="text-brand">AMERICA VEHÍCULOS</span></h1>
     </nav>
 
     <main id="detalle-content" class="max-w-6xl mx-auto px-4 md:px-6 py-8">
@@ -116,7 +116,7 @@
 
         function renderDetalle(carro) {
             const container = document.getElementById('detalle-content');
-            document.title = `${carro.marca} ${carro.modelo} | MULTIAMERICA`;
+            document.title = `${carro.marca} ${carro.modelo} | MULTIAMERICA VEHÍCULOS`;
 
             // Validación de fotos segura
             const fotosArray = Array.isArray(carro.fotos) && carro.fotos.length > 0 ? carro.fotos : [null];

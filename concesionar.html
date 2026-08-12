@@ -225,20 +225,24 @@
 
             btn.innerText = "ASIGNANDO GERENTE...";
 
-            // 2. BUSCAR GERENTE AL AZAR desde la vista lista_gerentes
+            // 2. BUSCAR GERENTE AL AZAR desde la vista lista_gerentes (esta
+            // vista publica solo expone nombre/whatsapp/slug, nunca el
+            // email real). El slug se manda al Edge Function, que hace la
+            // asignacion real y la notificacion del lado del servidor.
             let nombreGerente = "Asesor Élite";
-            let tlfGerente = "584123768312"; 
-            
+            let tlfGerente = "584123768312";
+            let slugGerente = null;
+
             try {
-                // Consultamos a la nueva tabla/vista lista_gerentes
                 const { data: gerentes, error: errG } = await clienteSupabase
                     .from('lista_gerentes')
-                    .select('nombre, apellido, whatsapp');
+                    .select('nombre, apellido, whatsapp, slug');
 
                 if (!errG && gerentes && gerentes.length > 0) {
                     const elegido = gerentes[Math.floor(Math.random() * gerentes.length)];
                     nombreGerente = `${elegido.nombre} ${elegido.apellido || ''}`.trim();
                     tlfGerente = elegido.whatsapp || tlfGerente;
+                    slugGerente = elegido.slug || null;
                 } else if (errG) {
                     console.warn("Error consultando lista_gerentes:", errG.message);
                 }
@@ -252,31 +256,23 @@
                 nombre: document.getElementById('c-nombre').value,
                 telefono: document.getElementById('c-telefono').value,
                 vehiculo: document.getElementById('c-vehiculo').value,
-                ano: parseInt(document.getElementById('c-ano').value) || 0,
-                km: parseInt(document.getElementById('c-km').value) || 0,
-                precio: parseInt(document.getElementById('c-precio').value) || 0,
-                fotos: fotosUrls, 
-                estatus: 'Pendiente de Revisión'
+                anio: parseInt(document.getElementById('c-ano').value) || null,
+                kilometraje: parseInt(document.getElementById('c-km').value) || null,
+                precio: parseInt(document.getElementById('c-precio').value) || null,
+                fotos: fotosUrls,
+                gerente_slug: slugGerente
             };
 
-            // INSERCIÓN BLINDADA
-            let { error: dbError } = await clienteSupabase
-                .from('consignaciones')
-                .insert([{ ...payload, vendedor_asignado: nombreGerente }]);
+            const { data: resultado, error: fnError } = await clienteSupabase.functions.invoke('registrar-consignacion', {
+                body: payload
+            });
 
-            if (dbError && (dbError.message.includes("vendedor_asignado") || dbError.code === 'PGRST204')) {
-                console.warn("⚠️ Falta la columna 'vendedor_asignado' en Supabase. Guardando sin ese campo por ahora...");
-                const fallback = await clienteSupabase.from('consignaciones').insert([payload]);
-                dbError = fallback.error;
-            }
-
-            if (dbError) {
-                console.error("DETALLE DEL ERROR 400:", JSON.stringify(dbError, null, 2));
-                throw new Error(`Error BD: ${dbError.message || dbError.details || 'Revisa la consola.'}`);
+            if (fnError || resultado?.error) {
+                throw new Error(fnError?.message || resultado?.error || 'Error al registrar la consignación.');
             }
 
             alert(`¡Solicitud recibida! Hemos asignado tu caso al gerente: ${nombreGerente}.\n\nSerás redirigido a su WhatsApp para atención inmediata.`);
-            
+
             form.reset();
             fileNameLabel.innerText = "Click para subir fotos";
             fileNameLabel.classList.remove('text-primary');

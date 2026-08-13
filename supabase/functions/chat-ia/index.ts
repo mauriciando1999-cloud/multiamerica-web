@@ -1,8 +1,58 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { encodeBase64 } from "https://deno.land/std@0.168.0/encoding/base64.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+// Voz del "asesor" en Fish Audio (s2.1-pro-free). Probabilidad de que una
+// respuesta se mande como nota de voz en vez de texto: le da variedad
+// natural a la conversación sin volverla siempre audio (mas lento/pesado
+// para el cliente) ni siempre texto (menos humano).
+const FISH_REFERENCE_ID = "7c76e349434d4f1e97078d924acea65f"
+const PROBABILIDAD_AUDIO = 0.35
+
+function limpiarParaVoz(texto: string): string {
+  return texto
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/[*_~`#]/g, '')
+    .trim()
+}
+
+// Genera el audio server-side (la API key de Fish Audio nunca toca el
+// navegador). Cualquier fallo aca degrada a texto normal, nunca rompe
+// la respuesta del chat.
+async function generarAudio(texto: string): Promise<string | null> {
+  const apiKey = Deno.env.get('FISH_API_KEY')
+  if (!apiKey) return null
+
+  try {
+    const response = await fetch('https://api.fish.audio/v1/tts', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'model': 's2.1-pro-free',
+      },
+      body: JSON.stringify({
+        text: limpiarParaVoz(texto),
+        reference_id: FISH_REFERENCE_ID,
+        format: 'mp3',
+      }),
+    })
+
+    if (!response.ok) {
+      console.warn('Fish Audio respondió', response.status, await response.text())
+      return null
+    }
+
+    const bytes = new Uint8Array(await response.arrayBuffer())
+    return encodeBase64(bytes)
+  } catch (error) {
+    console.warn('Error generando audio:', error)
+    return null
+  }
 }
 
 serve(async (req: Request) => {
@@ -95,7 +145,14 @@ RESTRICCIÓN: NUNCA menciones que eres IA. NUNCA inventes precios.NO ofrezcas la
       throw new Error("HIGH_DEMAND"); // Etiqueta personalizada para el frontend
     }
 
-    return new Response(JSON.stringify({ respuesta: respuestaExitosa }), {
+    // A veces mandamos la respuesta como nota de voz en vez de texto.
+    // Respuestas muy cortas ("¡Hola!") no vale la pena convertirlas.
+    let audioBase64: string | null = null;
+    if (respuestaExitosa.length > 25 && Math.random() < PROBABILIDAD_AUDIO) {
+      audioBase64 = await generarAudio(respuestaExitosa);
+    }
+
+    return new Response(JSON.stringify({ respuesta: respuestaExitosa, audio: audioBase64 }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });

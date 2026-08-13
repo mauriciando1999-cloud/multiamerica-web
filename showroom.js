@@ -306,10 +306,11 @@ async function enviarConsulta(event) {
         const client = (typeof _supabase !== 'undefined') ? _supabase : supabase;
 
         // Asignamos un gerente real (vista publica, filtra rol='gerente').
-        // Si el cliente llego por el enlace personal de un gerente
-        // (showroom.html?v=slug), se lo asignamos a el en vez de al azar.
-        const { data: gerentes } = await client.from('lista_gerentes').select('slug, nombre, apellido');
-        let gerenteAsignado = elegirGerenteAsignado(gerentes);
+        // Si el cliente llego por el enlace personal de un vendedor
+        // (gerente o asesor: showroom.html?v=slug), se lo asignamos a el
+        // en vez de al azar.
+        const { data: vendedores } = await client.from('lista_vendedores').select('slug, nombre, apellido, rol');
+        let gerenteAsignado = elegirGerenteAsignado(vendedores);
 
         // El registro real y la notificacion al gerente las hace el
         // Edge Function (con service_role) para no exponer emails
@@ -343,17 +344,22 @@ async function enviarConsulta(event) {
 // ==========================================
 // ATRIBUCIÓN (VENDEDOR)
 // ==========================================
-// Si el cliente entro por el enlace personal de un gerente
-// (?v=slug, guardado en localStorage al cargar el showroom), se lo
-// asignamos a el. Si no, o si ese gerente ya no esta activo, cae a
-// un pick al azar entre los gerentes disponibles.
-function elegirGerenteAsignado(gerentes) {
-    if (!gerentes || gerentes.length === 0) return null;
+// Si el cliente entro por el enlace personal de CUALQUIER vendedor
+// (gerente o asesor: ?v=slug, guardado en localStorage al cargar el
+// showroom), se lo asignamos a el/ella, para que el contacto se quede
+// con esa persona y no se le mande a otro. Si no hay enlace, o el slug
+// no corresponde a nadie activo, cae a un pick al azar SOLO entre los
+// gerentes (el trafico organico sin atribucion no se reparte entre
+// asesores, que solo reciben lo que ellos mismos consiguen).
+function elegirGerenteAsignado(vendedores) {
+    if (!vendedores || vendedores.length === 0) return null;
     const miVendedor = localStorage.getItem('last_vendedor');
     if (miVendedor) {
-        const match = gerentes.find(g => g.slug === miVendedor);
+        const match = vendedores.find(v => v.slug === miVendedor);
         if (match) return match;
     }
+    const gerentes = vendedores.filter(v => v.rol === 'gerente');
+    if (gerentes.length === 0) return null;
     return gerentes[Math.floor(Math.random() * gerentes.length)];
 }
 
@@ -364,9 +370,9 @@ async function inicializarAtribucion() {
         try {
             const client = (typeof _supabase !== 'undefined') ? _supabase : supabase;
             // 'vendedores' no es legible por visitantes anonimos (RLS);
-            // usamos la vista publica lista_gerentes, igual que checkout.html
-            // y concesionar.html.
-            const { data } = await client.from('lista_gerentes').select('whatsapp, nombre').eq('slug', vSlug).single();
+            // usamos la vista publica lista_vendedores (gerentes Y
+            // asesores), igual que checkout.html y concesionar.html.
+            const { data } = await client.from('lista_vendedores').select('whatsapp, nombre').eq('slug', vSlug).single();
             if (data) {
                 localStorage.setItem("ws_vendedor", data.whatsapp);
                 localStorage.setItem("nombre_vendedor", data.nombre);

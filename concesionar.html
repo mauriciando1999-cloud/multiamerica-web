@@ -225,30 +225,34 @@
 
             btn.innerText = "ASIGNANDO GERENTE...";
 
-            // 2. BUSCAR GERENTE desde la vista lista_gerentes (esta vista
-            // publica solo expone nombre/whatsapp/slug, nunca el email
-            // real). Si el cliente llego por el enlace personal de un
-            // gerente (showroom.html?v=slug), se lo asignamos a el en vez
-            // de al azar. El slug se manda al Edge Function, que hace la
-            // asignacion real y la notificacion del lado del servidor.
+            // 2. BUSCAR VENDEDOR desde la vista lista_vendedores (gerentes Y
+            // asesores; esta vista publica solo expone nombre/whatsapp/slug,
+            // nunca el email real). Si el cliente llego por el enlace
+            // personal de alguien (showroom.html?v=slug), se lo asignamos a
+            // el/ella en vez de al azar; sin enlace, el azar solo elige
+            // entre gerentes. El slug se manda al Edge Function, que hace
+            // la asignacion real y la notificacion del lado del servidor.
             let nombreGerente = "Asesor Élite";
             let tlfGerente = "584123768312";
             let slugGerente = null;
 
             try {
-                const { data: gerentes, error: errG } = await clienteSupabase
-                    .from('lista_gerentes')
-                    .select('nombre, apellido, whatsapp, slug');
+                const { data: vendedores, error: errG } = await clienteSupabase
+                    .from('lista_vendedores')
+                    .select('nombre, apellido, whatsapp, slug, rol');
 
-                if (!errG && gerentes && gerentes.length > 0) {
+                if (!errG && vendedores && vendedores.length > 0) {
                     const miVendedor = localStorage.getItem('last_vendedor');
-                    const match = miVendedor ? gerentes.find(g => g.slug === miVendedor) : null;
-                    const elegido = match || gerentes[Math.floor(Math.random() * gerentes.length)];
-                    nombreGerente = `${elegido.nombre} ${elegido.apellido || ''}`.trim();
-                    tlfGerente = elegido.whatsapp || tlfGerente;
-                    slugGerente = elegido.slug || null;
+                    const match = miVendedor ? vendedores.find(v => v.slug === miVendedor) : null;
+                    const gerentes = vendedores.filter(v => v.rol === 'gerente');
+                    const elegido = match || (gerentes.length > 0 ? gerentes[Math.floor(Math.random() * gerentes.length)] : null);
+                    if (elegido) {
+                        nombreGerente = `${elegido.nombre} ${elegido.apellido || ''}`.trim();
+                        tlfGerente = elegido.whatsapp || tlfGerente;
+                        slugGerente = elegido.slug || null;
+                    }
                 } else if (errG) {
-                    console.warn("Error consultando lista_gerentes:", errG.message);
+                    console.warn("Error consultando lista_vendedores:", errG.message);
                 }
             } catch (err) {
                 console.warn("Ruteo automático falló, usando predeterminado.", err);

@@ -286,19 +286,23 @@
 
             const client = (typeof _supabase !== 'undefined') ? _supabase : supabase;
 
-            // Buscar gerentes (vista publica; 'vendedores' no es legible por anonimos)
-            const { data: gerentes, error } = await client
-                .from('lista_gerentes')
-                .select('slug, nombre, apellido, whatsapp');
+            // Buscar vendedores (vista publica; 'vendedores' no es legible por
+            // anonimos). Incluye gerentes Y asesores, para que el enlace
+            // personal de un asesor tambien se respete.
+            const { data: vendedores, error } = await client
+                .from('lista_vendedores')
+                .select('slug, nombre, apellido, whatsapp, rol');
 
             let gerenteAsignado = { nombre: "Gerente", apellido: "De Guardia", whatsapp: "584120000000" };
 
-            // Si el cliente llego por el enlace personal de un gerente
+            // Si el cliente llego por el enlace personal de un vendedor
             // (showroom.html?v=slug), se lo asignamos a el en vez de al azar.
-            if (!error && gerentes && gerentes.length > 0) {
+            // Sin enlace, el azar solo elige entre gerentes.
+            if (!error && vendedores && vendedores.length > 0) {
                 const miVendedor = localStorage.getItem('last_vendedor');
-                const match = miVendedor ? gerentes.find(g => g.slug === miVendedor) : null;
-                gerenteAsignado = match || gerentes[Math.floor(Math.random() * gerentes.length)];
+                const match = miVendedor ? vendedores.find(v => v.slug === miVendedor) : null;
+                const gerentes = vendedores.filter(v => v.rol === 'gerente');
+                gerenteAsignado = match || (gerentes.length > 0 ? gerentes[Math.floor(Math.random() * gerentes.length)] : gerenteAsignado);
             }
 
             // Dejamos registro del lead y notificamos al gerente (Edge Function

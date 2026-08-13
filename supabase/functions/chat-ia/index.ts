@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { encodeBase64 } from "https://deno.land/std@0.168.0/encoding/base64.ts"
+import { encode as encodeBase64 } from "https://deno.land/std@0.168.0/encoding/base64.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -47,8 +47,7 @@ async function generarAudio(texto: string): Promise<string | null> {
       return null
     }
 
-    const bytes = new Uint8Array(await response.arrayBuffer())
-    return encodeBase64(bytes)
+    return encodeBase64(await response.arrayBuffer())
   } catch (error) {
     console.warn('Error generando audio:', error)
     return null

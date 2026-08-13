@@ -424,7 +424,7 @@ function escribirAlVendedor() {
     const wa = localStorage.getItem('ws_vendedor');
     if (!wa) return alert("No pudimos encontrar a tu asesor. Intenta de nuevo.");
 
-    const listaAutos = carrito.map(c => `🏎️ *${c.marca} ${c.modelo}*`).join('\n');
+    const listaAutos = carrito.map(c => `🏎️ *${c.marca} ${c.modelo}*\n${window.location.origin}/detalle.html?id=${c.id}`).join('\n\n');
     const texto = encodeURIComponent(`¡Hola ${nombre}! Vi tu catálogo de Multiamerica Vehículos y me interesan estos vehículos:\n\n${listaAutos}\n\n¿Me das más información?`);
     const cleanNum = wa.replace(/\D/g, '');
     window.open(`https://wa.me/${cleanNum}?text=${texto}`, '_blank');

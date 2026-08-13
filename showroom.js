@@ -13,7 +13,11 @@ const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: '
 document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const vActual = urlParams.get('v');
-    const vGuardado = localStorage.getItem('last_vendedor');
+    // sessionStorage (no localStorage): la atribucion de vendedor debe
+    // vivir solo mientras dure esta pestana/visita, no quedar pegada para
+    // siempre y aparecer en visitas futuras que entraron por el enlace
+    // generico sin ?v=.
+    const vGuardado = sessionStorage.getItem('last_vendedor');
 
     const perfEntries = performance.getEntriesByType("navigation");
     const isReload = perfEntries.length > 0 && perfEntries[0].type === "reload";
@@ -21,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (isReload || (vActual && vActual !== vGuardado)) {
         localStorage.clear();
         sessionStorage.clear();
-        if (vActual) localStorage.setItem('last_vendedor', vActual);
+        if (vActual) sessionStorage.setItem('last_vendedor', vActual);
         carrito = [];
     }
 
@@ -345,7 +349,7 @@ async function enviarConsulta(event) {
 // ATRIBUCIÓN (VENDEDOR)
 // ==========================================
 // Si el cliente entro por el enlace personal de CUALQUIER vendedor
-// (gerente o asesor: ?v=slug, guardado en localStorage al cargar el
+// (gerente o asesor: ?v=slug, guardado en sessionStorage al cargar el
 // showroom), se lo asignamos a el/ella, para que el contacto se quede
 // con esa persona y no se le mande a otro. Si no hay enlace, o el slug
 // no corresponde a nadie activo, cae a un pick al azar SOLO entre los
@@ -353,7 +357,7 @@ async function enviarConsulta(event) {
 // asesores, que solo reciben lo que ellos mismos consiguen).
 function elegirGerenteAsignado(vendedores) {
     if (!vendedores || vendedores.length === 0) return null;
-    const miVendedor = localStorage.getItem('last_vendedor');
+    const miVendedor = sessionStorage.getItem('last_vendedor');
     if (miVendedor) {
         const match = vendedores.find(v => v.slug === miVendedor);
         if (match) return match;
@@ -374,8 +378,8 @@ async function inicializarAtribucion() {
             // asesores), igual que checkout.html y concesionar.html.
             const { data } = await client.from('lista_vendedores').select('whatsapp, nombre').eq('slug', vSlug).single();
             if (data) {
-                localStorage.setItem("ws_vendedor", data.whatsapp);
-                localStorage.setItem("nombre_vendedor", data.nombre);
+                sessionStorage.setItem("ws_vendedor", data.whatsapp);
+                sessionStorage.setItem("nombre_vendedor", data.nombre);
             }
         } catch(e) {}
     }
@@ -388,12 +392,12 @@ async function inicializarAtribucion() {
 // un unico boton para escribirle directo a esa persona: el contacto debe
 // quedarse con ella, no repartirse entre varios caminos.
 function mostrarBannerVendedor() {
-    const nombre = localStorage.getItem('nombre_vendedor');
+    const nombre = sessionStorage.getItem('nombre_vendedor');
     if (!nombre) return;
 
     document.getElementById('banner-vendedor-nombre').innerText = `Estás viendo el catálogo con ${nombre}`;
 
-    const wa = localStorage.getItem('ws_vendedor');
+    const wa = sessionStorage.getItem('ws_vendedor');
     const btnWa = document.getElementById('banner-vendedor-wa');
     if (wa) {
         const cleanNum = wa.replace(/\D/g, '');
@@ -420,8 +424,8 @@ function mostrarBannerVendedor() {
 function escribirAlVendedor() {
     if (carrito.length === 0) return alert("Selecciona al menos un vehículo para escribirle.");
 
-    const nombre = localStorage.getItem('nombre_vendedor');
-    const wa = localStorage.getItem('ws_vendedor');
+    const nombre = sessionStorage.getItem('nombre_vendedor');
+    const wa = sessionStorage.getItem('ws_vendedor');
     if (!wa) return alert("No pudimos encontrar a tu asesor. Intenta de nuevo.");
 
     const listaAutos = carrito.map(c => `🏎️ *${c.marca} ${c.modelo}*\n${window.location.origin}/detalle.html?id=${c.id}`).join('\n\n');

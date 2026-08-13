@@ -242,7 +242,7 @@
                     .select('nombre, apellido, whatsapp, slug, rol');
 
                 if (!errG && vendedores && vendedores.length > 0) {
-                    const miVendedor = localStorage.getItem('last_vendedor');
+                    const miVendedor = sessionStorage.getItem('last_vendedor');
                     const match = miVendedor ? vendedores.find(v => v.slug === miVendedor) : null;
                     const gerentes = vendedores.filter(v => v.rol === 'gerente');
                     const elegido = match || (gerentes.length > 0 ? gerentes[Math.floor(Math.random() * gerentes.length)] : null);

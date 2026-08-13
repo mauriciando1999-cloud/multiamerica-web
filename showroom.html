@@ -258,7 +258,7 @@
                     <span class="text-[10px] font-bold text-gray-400 uppercase tracking-tight whitespace-nowrap">En tu selección</span>
                 </div>
             </div>
-            <div class="grid grid-cols-3 md:flex flex-1 gap-2">
+            <div class="grid grid-cols-3 md:flex flex-1 gap-2" id="cart-actions-default">
                 <button onclick="abrirChatConSeleccion()" class="cart-action-btn bg-gray-100 text-black hover:bg-gray-200">
                     <i class="fa-solid fa-robot text-[#d65127]"></i> <span>Asesor IA</span>
                 </button>
@@ -267,6 +267,15 @@
                 </button>
                 <button onclick="irAlCheckout()" class="cart-action-btn bg-[#d65127] text-black hover:bg-black hover:text-white shadow-[0_5px_15px_rgba(214, 81, 39,0.3)]">
                     <i class="fa-solid fa-calendar-check"></i> <span>Agendar</span>
+                </button>
+            </div>
+            <!-- Si el cliente entro por el enlace personal de un vendedor,
+                 reemplazamos IA/Consultar/Agendar por un unico boton directo
+                 a WhatsApp con ESE vendedor: es el punto de contacto que
+                 quiere mantenerse, no repartirlo entre varios caminos. -->
+            <div class="hidden flex-1" id="cart-actions-vendedor">
+                <button onclick="escribirAlVendedor()" class="cart-action-btn w-full bg-[#25D366] text-white hover:bg-green-600 shadow-[0_5px_15px_rgba(37,211,102,0.3)]">
+                    <i class="fa-brands fa-whatsapp text-lg"></i> <span id="texto-btn-vendedor">Escribir a tu Asesor</span>
                 </button>
             </div>
         </div>

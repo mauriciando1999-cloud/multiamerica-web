@@ -382,8 +382,11 @@ async function inicializarAtribucion() {
 }
 
 // Le da la cara al enlace personal: si el cliente entro por el link de un
-// gerente (o lo trae guardado de la sesion), se lo mostramos para que
-// sienta que es SU catalogo, con un boton directo a WhatsApp.
+// vendedor (o lo trae guardado de la sesion), se lo mostramos para que
+// sienta que es SU catalogo, con un boton directo a WhatsApp, y ademas
+// reemplazamos las 3 opciones del carrito (IA / Consultar / Agendar) por
+// un unico boton para escribirle directo a esa persona: el contacto debe
+// quedarse con ella, no repartirse entre varios caminos.
 function mostrarBannerVendedor() {
     const nombre = localStorage.getItem('nombre_vendedor');
     if (!nombre) return;
@@ -396,11 +399,29 @@ function mostrarBannerVendedor() {
         const cleanNum = wa.replace(/\D/g, '');
         const texto = encodeURIComponent(`¡Hola ${nombre}! Estoy viendo el catálogo de Multiamerica Vehículos.`);
         btnWa.href = `https://wa.me/${cleanNum}?text=${texto}`;
+
+        document.getElementById('texto-btn-vendedor').innerText = `Escribir a ${nombre.split(' ')[0]}`;
+        document.getElementById('cart-actions-default').classList.add('hidden');
+        document.getElementById('cart-actions-vendedor').classList.remove('hidden');
     } else {
         btnWa.classList.add('hidden');
     }
 
     document.getElementById('banner-vendedor').classList.remove('hidden');
+}
+
+// Boton unico del carrito cuando hay un vendedor personal asignado.
+function escribirAlVendedor() {
+    if (carrito.length === 0) return alert("Selecciona al menos un vehículo para escribirle.");
+
+    const nombre = localStorage.getItem('nombre_vendedor');
+    const wa = localStorage.getItem('ws_vendedor');
+    if (!wa) return alert("No pudimos encontrar a tu asesor. Intenta de nuevo.");
+
+    const listaAutos = carrito.map(c => `🏎️ *${c.marca} ${c.modelo}*`).join('\n');
+    const texto = encodeURIComponent(`¡Hola ${nombre}! Vi tu catálogo de Multiamerica Vehículos y me interesan estos vehículos:\n\n${listaAutos}\n\n¿Me das más información?`);
+    const cleanNum = wa.replace(/\D/g, '');
+    window.open(`https://wa.me/${cleanNum}?text=${texto}`, '_blank');
 }
 
 // ==========================================

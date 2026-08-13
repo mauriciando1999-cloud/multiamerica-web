@@ -22,7 +22,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     const perfEntries = performance.getEntriesByType("navigation");
     const isReload = perfEntries.length > 0 && perfEntries[0].type === "reload";
 
-    if (isReload || (vActual && vActual !== vGuardado)) {
+    // OJO: comparacion estricta (no "vActual &&"), para que tambien limpie
+    // cuando se navega DENTRO de la misma pestana desde el enlace de un
+    // vendedor hacia el enlace generico (?v= ausente): antes solo se
+    // limpiaba al cambiar a OTRO vendedor, y el enlace normal se quedaba
+    // mostrando la atribucion vieja el resto de la sesion.
+    if (isReload || vActual !== vGuardado) {
         localStorage.clear();
         sessionStorage.clear();
         if (vActual) sessionStorage.setItem('last_vendedor', vActual);

@@ -79,12 +79,9 @@
             </div>
 
             <div>
-                <label class="label-style">Gerencia Asignada</label>
+                <label class="label-style">Gerente Asignado</label>
                 <select id="gerente" required class="w-full p-4 rounded-2xl bg-gray-50 outline-none appearance-none text-sm font-bold">
-                    <option value="">Seleccionar Gerencia...</option>
-                    <option value="Gerencia de Ventas A">Gerencia de Ventas A</option>
-                    <option value="Gerencia de Ventas B">Gerencia de Ventas B</option>
-                    <option value="Dirección Comercial">Dirección Comercial</option>
+                    <option value="">Cargando gerentes...</option>
                 </select>
             </div>
 
@@ -124,10 +121,29 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof CONFIG !== 'undefined') {
                 window.clientSupabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+                cargarGerentes();
             } else {
                 alert("Error: Revisa public-db.js");
             }
         });
+
+        async function cargarGerentes() {
+            const select = document.getElementById('gerente');
+            try {
+                // Vista publica (la tabla 'vendedores' tiene RLS); mismo
+                // patron que showroom.js, checkout.html y concesionar.html.
+                const { data, error } = await window.clientSupabase
+                    .from('lista_gerentes')
+                    .select('slug, nombre, apellido')
+                    .order('nombre');
+                if (error) throw error;
+
+                select.innerHTML = '<option value="">Seleccionar Gerente...</option>' +
+                    (data || []).map(g => `<option value="${g.slug}">${g.nombre} ${g.apellido || ''}</option>`).join('');
+            } catch (err) {
+                select.innerHTML = '<option value="">No se pudo cargar la lista</option>';
+            }
+        }
 
         document.getElementById('vendedor-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -153,7 +169,7 @@
                     email: email, // <-- NUEVO CAMPO
                     cedula: document.getElementById('num_cedula').value.trim(),
                     whatsapp: `58${document.getElementById('operadora').value}${numWA}`,
-                    gerente: document.getElementById('gerente').value,
+                    gerente_id: document.getElementById('gerente').value,
                     activo: false, // Se registra inactivo hasta que se revise
                     created_at: new Date().toISOString()
                 }]);

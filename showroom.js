@@ -10,7 +10,7 @@ const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: '
 // ==========================================
 // INICIALIZACIÓN
 // ==========================================
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const vActual = urlParams.get('v');
     const vGuardado = localStorage.getItem('last_vendedor');
@@ -25,9 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
         carrito = [];
     }
 
-    inicializarAtribucion();
+    await inicializarAtribucion();
+    mostrarBannerVendedor();
     cargarInventario();
-    
+
     document.getElementById('buscador').addEventListener('input', filtrarTodo);
 });
 
@@ -372,6 +373,28 @@ async function inicializarAtribucion() {
             }
         } catch(e) {}
     }
+}
+
+// Le da la cara al enlace personal: si el cliente entro por el link de un
+// gerente (o lo trae guardado de la sesion), se lo mostramos para que
+// sienta que es SU catalogo, con un boton directo a WhatsApp.
+function mostrarBannerVendedor() {
+    const nombre = localStorage.getItem('nombre_vendedor');
+    if (!nombre) return;
+
+    document.getElementById('banner-vendedor-nombre').innerText = `Estás viendo el catálogo con ${nombre}`;
+
+    const wa = localStorage.getItem('ws_vendedor');
+    const btnWa = document.getElementById('banner-vendedor-wa');
+    if (wa) {
+        const cleanNum = wa.replace(/\D/g, '');
+        const texto = encodeURIComponent(`¡Hola ${nombre}! Estoy viendo el catálogo de Multiamerica Vehículos.`);
+        btnWa.href = `https://wa.me/${cleanNum}?text=${texto}`;
+    } else {
+        btnWa.classList.add('hidden');
+    }
+
+    document.getElementById('banner-vendedor').classList.remove('hidden');
 }
 
 // ==========================================

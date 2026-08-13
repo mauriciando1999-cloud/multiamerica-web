@@ -141,6 +141,25 @@
         </div>
     </nav>
 
+    <!-- Banner de atribución: se muestra cuando el cliente entró por el
+         enlace personal de un gerente (showroom.html?v=slug) -->
+    <div id="banner-vendedor" class="hidden max-w-7xl mx-auto px-4 md:px-8 pt-6">
+        <div class="bg-black text-white rounded-3xl px-5 md:px-6 py-4 flex items-center justify-between gap-4 shadow-lg">
+            <div class="flex items-center gap-4 min-w-0">
+                <div class="w-11 h-11 rounded-full bg-[#d65127] flex items-center justify-center text-black text-lg flex-shrink-0">
+                    <i class="fa-solid fa-user-tie"></i>
+                </div>
+                <div class="min-w-0">
+                    <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">Catálogo Personalizado</p>
+                    <p class="text-xs md:text-sm font-black uppercase italic truncate" id="banner-vendedor-nombre">--</p>
+                </div>
+            </div>
+            <a id="banner-vendedor-wa" href="#" target="_blank" class="bg-[#25D366] text-white px-4 md:px-5 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-green-600 transition-all flex-shrink-0">
+                <i class="fa-brands fa-whatsapp text-base"></i> <span class="hidden sm:inline">Escribir</span>
+            </a>
+        </div>
+    </div>
+
     <!-- Buscador Principal -->
     <header class="max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-12 pb-6">
         <div class="flex flex-col md:flex-row gap-6 items-center justify-between">

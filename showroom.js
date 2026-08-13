@@ -401,8 +401,14 @@ function mostrarBannerVendedor() {
         btnWa.href = `https://wa.me/${cleanNum}?text=${texto}`;
 
         document.getElementById('texto-btn-vendedor').innerText = `Escribir a ${nombre.split(' ')[0]}`;
-        document.getElementById('cart-actions-default').classList.add('hidden');
-        document.getElementById('cart-actions-vendedor').classList.remove('hidden');
+        // display inline (no clases) para no depender del orden de cascada
+        // entre '.hidden' y las utilidades 'grid'/'md:flex' del panel
+        // default: con Tailwind via CDN ese orden no esta garantizado y
+        // 'hidden' puede perder el empate de especificidad.
+        document.getElementById('cart-actions-default').style.display = 'none';
+        const panelVendedor = document.getElementById('cart-actions-vendedor');
+        panelVendedor.style.display = 'flex';
+        panelVendedor.classList.remove('hidden');
     } else {
         btnWa.classList.add('hidden');
     }

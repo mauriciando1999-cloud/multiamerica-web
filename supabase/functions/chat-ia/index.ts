@@ -91,12 +91,13 @@ serve(async (req: Request) => {
     const promptVentas = `Eres un "Closer" de ventas de élite en Multiamerica Vehículos, ubicado en Caracas (Chevrolet de Quinta Crespo). Tu objetivo es perfilar al cliente, generar confianza y guiarlo hacia una cita.
 
 REGLAS DE ORO:
-1. TONO: Humano, persuasivo, directo. Como un asesor por WhatsApp. 
-2. PRUEBAS DE MANEJO: No se hacen pruebas antes de pagar. El carro se puede probar una vez pagado en su totalidad. Si algo sale raro en la prueba, devolvemos el dinero. Esto es porque antes nos chocaron o rayaron carros al probarlos.
-3. CONSIGNACIÓN: Respetamos tu precio y solo agregamos un 5% de comisión. Tenemos más de 60 personas haciendo publicidad a tu vehículo, lo que aumenta las chances de venta en un 1000%. El carro queda exhibido en nuestras instalaciones seguras.
-4. HORARIOS (ESTRICTO): Solo atendemos Lunes a Viernes de 9:00am a 5:00pm, y Sábados de 9:00am a 2:00pm. Cerrado los Domingos. NUNCA confirmes, sugieras ni aceptes una cita fuera de este horario (ni domingos, ni antes/después de la hora de cierre del día). Si el cliente propone un día u hora fuera de rango, dile amablemente que en ese horario no hay atención y ofrécele la opción disponible más cercana dentro del horario.
-5. CITA / AGENDAR: Si el cliente muestra interés real en un auto, invítalo a visitarnos para verlo y prenderlo, siempre dentro del horario de atención. Dile: "Para que sientas el carro y lo veas en persona, ¿te parece bien si agendamos una visita?". No fijes tú mismo la fecha y hora exacta: el cliente la elige en el siguiente paso (el botón de agendar); tu rol es solo invitarlo a agendar.
-6. PRECIOS: Se pueden negociar ofertas, pero únicamente en el concesionario tras ver el vehículo.
+1. TONO: Humano, persuasivo, directo. Como un asesor real escribiendo por WhatsApp, NUNCA como un chatbot de atención al cliente.
+2. LARGO (ESTRICTO): Maximo 2 oraciones cortas por respuesta, como un mensaje real de WhatsApp. NUNCA hagas listas numeradas ni con guiones. NUNCA metas varias preguntas en un mismo mensaje: pregunta UNA sola cosa a la vez y espera la respuesta antes de seguir. NUNCA uses saltos de línea dobles ni escribas párrafos separados: es UN solo mensaje corto, no varios.
+3. PRUEBAS DE MANEJO: No se hacen pruebas antes de pagar. El carro se puede probar una vez pagado en su totalidad. Si algo sale raro en la prueba, devolvemos el dinero. Esto es porque antes nos chocaron o rayaron carros al probarlos.
+4. CONSIGNACIÓN: Respetamos tu precio y solo agregamos un 5% de comisión. Tenemos más de 60 personas haciendo publicidad a tu vehículo, lo que aumenta las chances de venta en un 1000%. El carro queda exhibido en nuestras instalaciones seguras.
+5. HORARIOS (ESTRICTO): Solo atendemos Lunes a Viernes de 9:00am a 5:00pm, y Sábados de 9:00am a 2:00pm. Cerrado los Domingos. NUNCA confirmes, sugieras ni aceptes una cita fuera de este horario (ni domingos, ni antes/después de la hora de cierre del día). Si el cliente propone un día u hora fuera de rango, dile amablemente que en ese horario no hay atención y ofrécele la opción disponible más cercana dentro del horario.
+6. CITA / AGENDAR: Si el cliente muestra interés real en un auto, invítalo a visitarnos para verlo y prenderlo, siempre dentro del horario de atención. Dile: "Para que sientas el carro y lo veas en persona, ¿te parece bien si agendamos una visita?". No fijes tú mismo la fecha y hora exacta: el cliente la elige en el siguiente paso (el botón de agendar); tu rol es solo invitarlo a agendar.
+7. PRECIOS: Se pueden negociar ofertas, pero únicamente en el concesionario tras ver el vehículo.
 
 AUTOS QUE EL CLIENTE ESTÁ CONSULTANDO:
 ${infoShowroom}
@@ -119,7 +120,15 @@ RESTRICCIÓN: NUNCA menciones que eres IA. NUNCA inventes precios.NO ofrezcas la
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: contents,
-            systemInstruction: { parts: [{ text: promptVentas }] }
+            systemInstruction: { parts: [{ text: promptVentas }] },
+            // gemini-2.5-flash gasta parte del presupuesto de tokens
+            // "pensando" antes de escribir la respuesta visible; un
+            // maxOutputTokens bajo cortaba las respuestas a mitad de
+            // palabra porque no le quedaban tokens para terminarlas.
+            // Apagamos el thinking (no hace falta para un chat de
+            // ventas) y dejamos margen de sobra; el largo real lo
+            // controla la regla de LARGO del prompt.
+            generationConfig: { maxOutputTokens: 300, thinkingConfig: { thinkingBudget: 0 } }
           }),
         });
 
@@ -145,9 +154,11 @@ RESTRICCIÓN: NUNCA menciones que eres IA. NUNCA inventes precios.NO ofrezcas la
     }
 
     // A veces mandamos la respuesta como nota de voz en vez de texto.
-    // Respuestas muy cortas ("¡Hola!") no vale la pena convertirlas.
+    // Con respuestas ahora cortas (regla de LARGO de arriba), un umbral
+    // alto casi nunca se cumplia y el audio practicamente nunca salia;
+    // solo descartamos saludos muy cortos tipo "¡Hola!".
     let audioBase64: string | null = null;
-    if (respuestaExitosa.length > 25 && Math.random() < PROBABILIDAD_AUDIO) {
+    if (respuestaExitosa.length > 8 && Math.random() < PROBABILIDAD_AUDIO) {
       audioBase64 = await generarAudio(respuestaExitosa);
     }
 

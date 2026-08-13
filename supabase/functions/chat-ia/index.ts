@@ -88,7 +88,17 @@ serve(async (req: Request) => {
         contents.unshift({ role: 'user', parts: [{ text: 'Hola.' }] });
     }
 
+    // Gemini no sabe que dia es "hoy": si no se lo decimos explicitamente,
+    // adivina mal (afecta la regla de horarios/agendar). Se calcula en
+    // hora de Caracas.
+    const fechaActual = new Intl.DateTimeFormat('es-VE', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+      timeZone: 'America/Caracas'
+    }).format(new Date());
+
     const promptVentas = `Eres un "Closer" de ventas de élite en Multiamerica Vehículos, ubicado en Caracas (Chevrolet de Quinta Crespo). Tu objetivo es perfilar al cliente, generar confianza y guiarlo hacia una cita.
+
+FECHA ACTUAL: Hoy es ${fechaActual} (hora de Caracas). Usa esta fecha como referencia real para cualquier cálculo de días (ej. "mañana", "el sábado que viene").
 
 REGLAS DE ORO:
 1. TONO: Humano, persuasivo, directo. Como un asesor real escribiendo por WhatsApp, NUNCA como un chatbot de atención al cliente.
@@ -128,7 +138,7 @@ RESTRICCIÓN: NUNCA menciones que eres IA. NUNCA inventes precios.NO ofrezcas la
             // Apagamos el thinking (no hace falta para un chat de
             // ventas) y dejamos margen de sobra; el largo real lo
             // controla la regla de LARGO del prompt.
-            generationConfig: { maxOutputTokens: 300, thinkingConfig: { thinkingBudget: 0 } }
+            generationConfig: { maxOutputTokens: 500, thinkingConfig: { thinkingBudget: 0 } }
           }),
         });
 
@@ -138,8 +148,16 @@ RESTRICCIÓN: NUNCA menciones que eres IA. NUNCA inventes precios.NO ofrezcas la
           throw new Error(result.error?.message || "Error en la red de Gemini");
         }
 
+        const candidato = result.candidates[0];
+        // Si se quedó sin presupuesto de tokens, el texto viene cortado a
+        // mitad de frase: mejor reintentar (con la otra key si hace falta)
+        // que mandarle al cliente una respuesta incompleta.
+        if (candidato.finishReason === 'MAX_TOKENS') {
+          throw new Error("Respuesta cortada por limite de tokens");
+        }
+
         // Si llegamos aquí, la clave funcionó perfectamente
-        respuestaExitosa = result.candidates[0].content.parts[0].text;
+        respuestaExitosa = candidato.content.parts[0].text;
         break; // Rompemos el bucle, ya no necesitamos probar la segunda clave
 
       } catch (error: any) {

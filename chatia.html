@@ -87,7 +87,7 @@
                 const client = typeof _supabase !== 'undefined' ? _supabase : supabase;
                 
                 const { data: stock } = await client.from('inventario')
-                    .select('marca, modelo, anio, precio_venta, kilometraje, color, transmision')
+                    .select('id, marca, modelo, anio, precio_venta, kilometraje, color, transmision, fotos')
                     .eq('estatus', 'Disponible');
                 if (stock) inventarioGlobal = stock;
 
@@ -288,11 +288,30 @@
             scrollToBottom();
         }
 
+        // Si en la conversación la IA recomendó otro vehículo del catálogo
+        // (no el que traía el cliente originalmente) y el cliente terminó
+        // aceptando ir a verlo, ese auto nunca se sumaba a la selección:
+        // se agenda visita solo por lo que ya estaba en el carrito antes de
+        // entrar al chat. Buscamos en toda la conversación cualquier auto
+        // del catálogo que se haya mencionado y lo sumamos.
+        function detectarYAgregarVehiculosMencionados() {
+            const texto = historialMensajes.map(m => m.content).join(' ').toLowerCase();
+            inventarioGlobal.forEach(auto => {
+                const yaEsta = contextoAutos.some(c => (auto.id && c.id === auto.id) || (c.marca === auto.marca && c.modelo === auto.modelo));
+                if (yaEsta) return;
+                const nombre = `${auto.marca} ${auto.modelo}`.toLowerCase();
+                if (nombre.trim() && texto.includes(nombre)) {
+                    contextoAutos.push(auto);
+                }
+            });
+        }
+
         function irACheckout() {
             // El carrito de checkout.html vive en sessionStorage; si el
             // cliente llego al chat por un vehiculo especifico (?id=) o por
             // el carrito, contextoAutos ya lo tiene, pero nunca se escribia
             // ahi antes de mandarlo al checkout.
+            detectarYAgregarVehiculosMencionados();
             if (contextoAutos.length > 0) {
                 sessionStorage.setItem('carrito_multiamerica', JSON.stringify(contextoAutos));
             }

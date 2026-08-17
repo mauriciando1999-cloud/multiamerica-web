@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargando Vehículo... | Multiamerica Vehículos</title>
-    
+    <title>Vehículo en Venta | Multiamerica Vehículos</title>
+    <meta name="description" id="meta-description" content="Conoce los detalles, fotos y precio de este vehículo disponible en Multiamerica Vehículos, Caracas. Agenda tu visita o consulta con un asesor.">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
@@ -37,7 +38,7 @@
         <button onclick="volver()" class="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest hover:text-[#d65127] transition-colors bg-white border border-gray-200 px-4 py-2 rounded-full shadow-sm">
             <i class="fa-solid fa-arrow-left"></i> Volver
         </button>
-        <h1 class="text-sm font-title font-black tracking-tighter uppercase italic">MULTI<span class="text-brand">AMERICA VEHÍCULOS</span></h1>
+        <p class="text-sm font-title font-black tracking-tighter uppercase italic">MULTI<span class="text-brand">AMERICA VEHÍCULOS</span></p>
     </nav>
 
     <main id="detalle-content" class="max-w-6xl mx-auto px-4 md:px-6 py-8">
@@ -116,7 +117,11 @@
 
         function renderDetalle(carro) {
             const container = document.getElementById('detalle-content');
-            document.title = `${carro.marca} ${carro.modelo} | MULTIAMERICA VEHÍCULOS`;
+            document.title = `${carro.marca} ${carro.modelo} ${carro.anio || ''} | MULTIAMERICA VEHÍCULOS`;
+            const metaDesc = document.getElementById('meta-description');
+            if (metaDesc) {
+                metaDesc.setAttribute('content', `${carro.marca} ${carro.modelo} ${carro.anio || ''} en venta en Multiamerica Vehículos, Caracas. ${carro.kilometraje ? Number(carro.kilometraje).toLocaleString() + ' km, ' : ''}$${Number(carro.precio_venta || 0).toLocaleString()}. Agenda tu visita hoy.`);
+            }
 
             // Validación de fotos segura
             const fotosArray = Array.isArray(carro.fotos) && carro.fotos.length > 0 ? carro.fotos : [null];
@@ -126,13 +131,13 @@
                     
                     <div class="lg:col-span-7 space-y-4 lg:sticky lg:top-24">
                         <div class="relative rounded-[32px] md:rounded-[48px] overflow-hidden shadow-xl bg-white border border-gray-100">
-                            <img id="main-img" src="${getFotoUrl(fotosArray[0])}" class="w-full aspect-[4/3] object-cover transition-opacity duration-300">
+                            <img id="main-img" src="${getFotoUrl(fotosArray[0])}" alt="${carro.marca} ${carro.modelo} ${carro.anio || ''}" class="w-full aspect-[4/3] object-cover transition-opacity duration-300">
                         </div>
                         
                         ${fotosArray.length > 1 ? `
                         <div class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-                            ${fotosArray.map(f => `
-                                <img src="${getFotoUrl(f)}" onclick="document.getElementById('main-img').src='${getFotoUrl(f)}'" 
+                            ${fotosArray.map((f, i) => `
+                                <img src="${getFotoUrl(f)}" onclick="document.getElementById('main-img').src='${getFotoUrl(f)}'" alt="${carro.marca} ${carro.modelo} - foto ${i + 1}"
                                     class="w-24 h-20 rounded-2xl object-cover cursor-pointer border-2 border-transparent hover:border-[#d65127] transition-all opacity-60 hover:opacity-100">
                             `).join('')}
                         </div>` : ''}
@@ -201,7 +206,7 @@
             grid.innerHTML = lista.map(s => `
                 <div class="suggestion-card snap-start bg-white border border-gray-100 rounded-[32px] p-2 cursor-pointer shadow-sm" 
                      onclick="window.location.href='detalle.html?id=${s.id}'">
-                    <img src="${getFotoUrl(s.fotos?.[0], 'https://placehold.co/400x300/eeeeee/999999?text=Sin+Foto')}" class="w-full aspect-video object-cover rounded-[26px] mb-4">
+                    <img src="${getFotoUrl(s.fotos?.[0], 'https://placehold.co/400x300/eeeeee/999999?text=Sin+Foto')}" alt="${s.marca} ${s.modelo} ${s.anio || ''}" class="w-full aspect-video object-cover rounded-[26px] mb-4">
                     <div class="px-4 pb-4">
                         <p class="text-[9px] font-black text-brand uppercase tracking-widest">${s.anio || 'N/A'}</p>
                         <h4 class="font-title font-black text-lg uppercase italic truncate leading-tight mt-1">${s.marca} ${s.modelo}</h4>

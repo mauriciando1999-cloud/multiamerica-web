@@ -173,7 +173,7 @@ function renderGrid(datos) {
         return `
         <div class="car-card group flex flex-col justify-between">
             <div class="relative m-2 aspect-[4/3] rounded-[24px] overflow-hidden bg-gray-100 cursor-pointer" onclick="window.location.href='detalle.html?id=${carro.id}'">
-                <img id="img-${carro.id}" src="${fotoUrl}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <img id="img-${carro.id}" src="${fotoUrl}" alt="${carro.marca} ${carro.modelo} ${carro.anio || ''}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                 
                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 

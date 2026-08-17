@@ -4,9 +4,10 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Programa de Referidos | Multiamerica Vehículos</title>
+    <meta name="description" content="Refiere a un cliente en Multiamerica Vehículos y gana comisión por cada venta o consignación que se concrete. Sin trámites complicados, en Caracas.">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
+    <script src="public-db.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@1,900&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet"/>
 
@@ -22,7 +23,7 @@
 <body class="pb-20">
 
     <header class="max-w-[1200px] mx-auto p-8 flex justify-between items-center">
-        <a href="inventario.html" class="w-12 h-12 flex items-center justify-center rounded-2xl border border-gray-100 hover:bg-black hover:text-white transition-all">
+        <a href="showroom.html" class="w-12 h-12 flex items-center justify-center rounded-2xl border border-gray-100 hover:bg-black hover:text-white transition-all">
             <i class="fa-solid fa-chevron-left"></i>
         </a>
         <h1 class="text-2xl font-epilogue font-black italic uppercase italic">Multiamerica Vehículos <span class="text-orange-envolvia">Partners</span></h1>
@@ -94,8 +95,6 @@
     </main>
 
     <script>
-        const _supabase = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
-
         document.getElementById('form-referido').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');

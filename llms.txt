@@ -1,0 +1,22 @@
+# Multiamerica Vehículos
+
+> Concesionario de vehículos usados en Caracas, Venezuela (Quinta Crespo). Compra, venta y consignación de autos, con inventario verificado y atención personalizada.
+
+Multiamerica Vehículos opera un showroom físico en Avenida Sur 4, Quinta Crespo, Caracas, y un catálogo digital con inventario actualizado en tiempo real. Ofrece tres servicios principales: compra de vehículos del inventario propio, consignación de vehículos de terceros (5% de comisión, sin costo por publicidad), y un asesor virtual con IA para resolver consultas.
+
+## Datos clave
+
+- Horario de atención: Lunes a Viernes 9:00am–5:00pm, Sábados 9:00am–2:00pm. Cerrado domingos.
+- Ubicación: Avenida Sur 4, Quinta Crespo, Caracas 1014, Venezuela.
+- Métodos de pago aceptados: transferencia, pago móvil, Binance, Zelle.
+- Pruebas de manejo: se realizan una vez cancelado el vehículo en su totalidad (política de seguridad).
+- Consignación: se respeta el precio del propietario, comisión fija de 5%, vehículo exhibido en el showroom.
+
+## Páginas principales
+
+- [Showroom](https://multiamerica-web.vercel.app/showroom.html): catálogo completo de vehículos disponibles, con filtros por marca, año y precio.
+- [Consignación](https://multiamerica-web.vercel.app/concesionar.html): formulario para consignar un vehículo propio.
+- [Sobre Nosotros](https://multiamerica-web.vercel.app/nosotros.html): valores de la empresa (transparencia, eficiencia, asesoría) y ubicación.
+- [Asesor IA](https://multiamerica-web.vercel.app/chatia.html): chat con asistente virtual para consultas sobre vehículos.
+- [Programa de Referidos](https://multiamerica-web.vercel.app/referidos.html): comisión por referir compradores o vendedores.
+- [Únete al Equipo](https://multiamerica-web.vercel.app/postulacion-vendedor.html): postulación para vendedores.

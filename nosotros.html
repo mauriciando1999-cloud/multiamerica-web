@@ -4,7 +4,8 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Nosotros | Multiamerica Vehículos</title>
-    
+    <meta name="description" content="Conoce Multiamerica Vehículos: transparencia, eficiencia y asesoría estratégica en cada compra o venta de vehículos en Caracas.">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Epilogue:ital,wght@1,900&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet"/>
@@ -122,8 +123,10 @@
                 <i class="fa-solid fa-arrow-left text-xs text-white"></i>
             </div>
         </a>
-        <h1 class="text-xl font-epilogue font-black italic text-white uppercase tracking-tighter">MULTI<span class="text-orange-envolvia">AMERICA VEHÍCULOS</span></h1>
+        <p class="text-xl font-epilogue font-black italic text-white uppercase tracking-tighter">MULTI<span class="text-orange-envolvia">AMERICA VEHÍCULOS</span></p>
     </header>
+
+    <h1 class="sr-only">Sobre Nosotros - Multiamerica Vehículos</h1>
 
     <section class="full-accordion">
         <div class="acc-item">
@@ -172,6 +175,97 @@
             </div>
         </div>
     </section>
+
+    <section class="section-block bg-white text-black border-t border-gray-200">
+        <div class="max-w-3xl mx-auto">
+            <span class="text-orange-600 font-bold tracking-[0.3em] uppercase text-xs mb-4 block">Dudas Frecuentes</span>
+            <h2 class="text-4xl md:text-5xl font-epilogue font-black italic uppercase mb-10 leading-none">PREGUNTAS <br><span class="text-orange-600">FRECUENTES.</span></h2>
+
+            <div class="space-y-4">
+                <details class="group border-b border-gray-200 py-5">
+                    <summary class="flex justify-between items-center cursor-pointer font-bold uppercase text-sm list-none">
+                        ¿Cuál es el horario de atención?
+                        <i class="fa-solid fa-chevron-down text-orange-600 text-xs transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-gray-600 mt-4 text-sm leading-relaxed">Lunes a Viernes de 9:00am a 5:00pm, y Sábados de 9:00am a 2:00pm. Cerrado los domingos.</p>
+                </details>
+                <details class="group border-b border-gray-200 py-5">
+                    <summary class="flex justify-between items-center cursor-pointer font-bold uppercase text-sm list-none">
+                        ¿Dónde están ubicados?
+                        <i class="fa-solid fa-chevron-down text-orange-600 text-xs transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-gray-600 mt-4 text-sm leading-relaxed">En la Avenida Sur 4, Quinta Crespo, Caracas 1014, entrando por la autopista hacia la Chevrolet.</p>
+                </details>
+                <details class="group border-b border-gray-200 py-5">
+                    <summary class="flex justify-between items-center cursor-pointer font-bold uppercase text-sm list-none">
+                        ¿Puedo hacer una prueba de manejo antes de comprar?
+                        <i class="fa-solid fa-chevron-down text-orange-600 text-xs transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-gray-600 mt-4 text-sm leading-relaxed">Las pruebas de manejo se realizan una vez pagado el vehículo en su totalidad. Si algo sale mal en la prueba, devolvemos tu dinero al 100%.</p>
+                </details>
+                <details class="group border-b border-gray-200 py-5">
+                    <summary class="flex justify-between items-center cursor-pointer font-bold uppercase text-sm list-none">
+                        ¿Cómo funciona la consignación de mi vehículo?
+                        <i class="fa-solid fa-chevron-down text-orange-600 text-xs transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-gray-600 mt-4 text-sm leading-relaxed">Respetamos tu precio y solo agregamos un 5% de comisión. Tu vehículo queda exhibido en nuestras instalaciones y más de 60 personas lo promocionan.</p>
+                </details>
+                <details class="group border-b border-gray-200 py-5">
+                    <summary class="flex justify-between items-center cursor-pointer font-bold uppercase text-sm list-none">
+                        ¿Qué métodos de pago aceptan?
+                        <i class="fa-solid fa-chevron-down text-orange-600 text-xs transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-gray-600 mt-4 text-sm leading-relaxed">Transferencia, pago móvil, Binance y Zelle.</p>
+                </details>
+                <details class="group border-b border-gray-200 py-5">
+                    <summary class="flex justify-between items-center cursor-pointer font-bold uppercase text-sm list-none">
+                        ¿Puedo negociar el precio?
+                        <i class="fa-solid fa-chevron-down text-orange-600 text-xs transition-transform group-open:rotate-180"></i>
+                    </summary>
+                    <p class="text-gray-600 mt-4 text-sm leading-relaxed">Sí, las ofertas se negocian directamente en el concesionario tras ver el vehículo en persona.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "¿Cuál es el horario de atención?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Lunes a Viernes de 9:00am a 5:00pm, y Sábados de 9:00am a 2:00pm. Cerrado los domingos." }
+            },
+            {
+                "@type": "Question",
+                "name": "¿Dónde están ubicados?",
+                "acceptedAnswer": { "@type": "Answer", "text": "En la Avenida Sur 4, Quinta Crespo, Caracas 1014, entrando por la autopista hacia la Chevrolet." }
+            },
+            {
+                "@type": "Question",
+                "name": "¿Puedo hacer una prueba de manejo antes de comprar?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Las pruebas de manejo se realizan una vez pagado el vehículo en su totalidad. Si algo sale mal en la prueba, se devuelve el dinero al 100%." }
+            },
+            {
+                "@type": "Question",
+                "name": "¿Cómo funciona la consignación de mi vehículo?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Se respeta el precio del propietario y solo se agrega un 5% de comisión. El vehículo queda exhibido en el showroom y más de 60 personas lo promocionan." }
+            },
+            {
+                "@type": "Question",
+                "name": "¿Qué métodos de pago aceptan?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Transferencia, pago móvil, Binance y Zelle." }
+            },
+            {
+                "@type": "Question",
+                "name": "¿Puedo negociar el precio?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Sí, las ofertas se negocian directamente en el concesionario tras ver el vehículo en persona." }
+            }
+        ]
+    }
+    </script>
 
     <section class="section-block bg-white text-black border-t border-gray-200">
         <div class="max-w-7xl mx-auto text-center mb-16">

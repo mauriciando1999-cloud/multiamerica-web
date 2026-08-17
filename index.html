@@ -4,7 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Multiamerica Vehículos | Concesionario Elite Caracas</title>
-    
+    <meta name="description" content="Concesionario de vehículos en Caracas con inventario verificado, consignación con 5% de comisión y atención personalizada. Compra o vende tu auto con Multiamerica Vehículos.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "AutoDealer",
+        "name": "Multiamerica Vehículos",
+        "image": "https://multiamerica-web.vercel.app/multiamerica_logo.png",
+        "url": "https://multiamerica-web.vercel.app/",
+        "telephone": "+584123768312",
+        "priceRange": "$$",
+        "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "Avenida Sur 4, Quinta Crespo",
+            "addressLocality": "Caracas",
+            "postalCode": "1014",
+            "addressCountry": "VE"
+        },
+        "openingHoursSpecification": [
+            {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+                "opens": "09:00",
+                "closes": "17:00"
+            },
+            {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": ["Saturday"],
+                "opens": "09:00",
+                "closes": "14:00"
+            }
+        ],
+        "sameAs": [
+            "https://www.instagram.com/multiamericavehiculos"
+        ]
+    }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&family=Montserrat:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
@@ -70,7 +106,7 @@
         }
     </style>
 </head>
-<body class="w-full relative overflow-x-hidden">
+<body class="w-full relative overflow-x-hidden pb-24 md:pb-0">
 
     <div class="film-grain"></div>
 
@@ -275,6 +311,14 @@
         </div>
     </footer>
 
+    <!-- CTA fijo movil: mismo patron que el cart-panel de showroom.html,
+         pero simple (un solo boton) ya que aqui no hay carrito. -->
+    <div class="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[92%] z-[90]">
+        <button onclick="window.location.href='showroom.html'" class="w-full bg-black text-white font-black uppercase tracking-widest text-xs px-8 py-5 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.25)] flex items-center justify-center gap-3 active:scale-95 transition-all">
+            <i class="fa-solid fa-car"></i> Ver Catálogo Completo
+        </button>
+    </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             // Lógica de Scroll para Navbar CLARA
@@ -405,7 +449,7 @@
                             return `
                             <div onclick="window.location.href='detalle.html?id=${carro.id}'" class="group cursor-pointer">
                                 <div class="relative h-[400px] md:h-[450px] rounded-[30px] md:rounded-[40px] overflow-hidden mb-6 shadow-[0_20px_40px_rgba(0,0,0,0.08)] bg-gray-100 border border-gray-100">
-                                    <img src="${fotoFinal}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
+                                    <img src="${fotoFinal}" alt="${carro.marca} ${carro.modelo} ${carro.anio || ''}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
                                     <div class="absolute bottom-8 left-8 right-8">
                                         <p class="text-[#d65127] font-black text-[10px] uppercase tracking-widest mb-1">${carro.anio} • ${carro.transmision || 'Auto'}</p>

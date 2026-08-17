@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Match de Autos | Multiamerica Vehículos</title>
-    
+    <meta name="description" content="Descubre tu próximo vehículo deslizando entre las opciones disponibles en Multiamerica Vehículos, Caracas.">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -224,7 +225,7 @@
                         <div class="stamp stamp-like" id="like-${i}">DAME</div>
                         <div class="stamp stamp-nope" id="nope-${i}">PASO</div>
 
-                        <img src="${fotoUrl}" class="w-full h-full object-cover absolute inset-0 pointer-events-none">
+                        <img src="${fotoUrl}" alt="${auto.marca} ${auto.modelo} ${auto.anio || ''}" class="w-full h-full object-cover absolute inset-0 pointer-events-none">
                         
                         <div class="absolute inset-x-0 bottom-0 card-gradient pt-32 pb-8 px-6 flex flex-col justify-end text-white pointer-events-none">
                             <div class="flex justify-between items-end">
@@ -402,7 +403,9 @@
             let fotoUrl = 'https://placehold.co/400x400?text=Auto';
             if (auto.fotos && auto.fotos.length > 0) fotoUrl = obtenerUrlFotoLocal(auto.fotos[0]);
             
-            document.getElementById('match-img').src = fotoUrl;
+            const imgMatch = document.getElementById('match-img');
+            imgMatch.src = fotoUrl;
+            imgMatch.alt = `${auto.marca} ${auto.modelo} ${auto.anio || ''}`;
             document.getElementById('match-screen').classList.add('active');
         }
 

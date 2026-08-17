@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Portal privado de registro de vendedores: no indexar, no enlazado
+# publicamente en ningun lugar del sitio.
+Disallow: /registro-equipo-x4k9p.html
+
+Sitemap: https://multiamerica-web.vercel.app/sitemap.xml

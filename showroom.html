@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Showroom VIP | Multiamerica Vehículos</title>
-    
+    <meta name="description" content="Explora el catálogo completo de vehículos disponibles en Multiamerica Vehículos, Caracas. Filtra por marca, año y precio, agenda tu visita o consulta con un asesor.">
+
     <!-- Tailwind CSS y Fuentes -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -119,9 +120,9 @@
             <!-- Logo y Marca -->
             <div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
                 <img src="multiamerica_logo.png" alt="Multiamerica Vehículos" class="h-8 md:h-10 object-contain drop-shadow-sm">
-                <h1 class="hidden sm:block text-lg md:text-xl font-title font-black tracking-tighter uppercase italic leading-none">
+                <p class="hidden sm:block text-lg md:text-xl font-title font-black tracking-tighter uppercase italic leading-none">
                     MULTI<span class="text-[#d65127]">AMERICA VEHICULOS</span>
-                </h1>
+                </p>
             </div>
         </div>
 
@@ -162,6 +163,7 @@
 
     <!-- Buscador Principal -->
     <header class="max-w-7xl mx-auto px-4 md:px-8 pt-8 md:pt-12 pb-6">
+        <h1 class="text-[#d65127] font-black uppercase tracking-[0.3em] text-[10px] mb-4">Showroom de Vehículos Disponibles en Caracas</h1>
         <div class="flex flex-col md:flex-row gap-6 items-center justify-between">
             <div id="buscador-container" class="w-full md:w-2/3 relative">
                 <input type="text" id="buscador" placeholder="Busca por marca, modelo o año..." 

@@ -177,12 +177,20 @@ RESTRICCIÓN: NUNCA menciones que eres IA. NUNCA inventes precios.NO ofrezcas la
     // Fish Audio intentaria "leer" el marcador en voz alta) y antes de
     // mandar el texto al cliente (el marcador es solo para activar el
     // boton, no debe verse ni escucharse).
+    // Tolerante a espacios/mayusculas (el modelo no siempre lo escribe
+    // exactamente igual, ej. "[[SUGERIR: id]]" con espacio despues de los
+    // dos puntos).
     let sugerirId: string | null = null;
-    const matchSugerir = respuestaExitosa.match(/\[\[SUGERIR:([a-zA-Z0-9-]+)\]\]/);
+    const matchSugerir = respuestaExitosa.match(/\[\[\s*sugerir\s*:\s*([a-zA-Z0-9-]+)\s*\]\]/i);
     if (matchSugerir) {
       sugerirId = matchSugerir[1];
       respuestaExitosa = respuestaExitosa.replace(matchSugerir[0], '').trim();
     }
+    // Red de seguridad: si el modelo escribio el marcador en un formato
+    // que no anticipamos, esto igual evita que le llegue texto crudo con
+    // corchetes al cliente (se pierde el boton en ese caso, pero es mucho
+    // mejor que mostrar "[[SUGERIR:...]]" en el chat).
+    respuestaExitosa = respuestaExitosa.replace(/\[\[[^\]]*\]\]/g, '').trim();
 
     // A veces mandamos la respuesta como nota de voz en vez de texto.
     // Con respuestas ahora cortas (regla de LARGO de arriba), un umbral

@@ -76,7 +76,7 @@ serve(async (req: Request) => {
       : "Ningún vehículo en el carrito.";
 
     const infoCatalogo = Array.isArray(inventarioTotal) && inventarioTotal.length > 0
-      ? inventarioTotal.map((c: any) => `- ${c.marca} ${c.modelo} ${c.anio} - $${c.precio_venta}`).join("\n")
+      ? inventarioTotal.map((c: any) => `- [id:${c.id}] ${c.marca} ${c.modelo} ${c.anio} - $${c.precio_venta}`).join("\n")
       : "Inventario no disponible.";
 
     let contents = mensajes.map((m: any) => ({
@@ -109,6 +109,7 @@ REGLAS DE ORO:
 6. CITA / AGENDAR: Si el cliente muestra interés real en un auto, invítalo a visitarnos para verlo y prenderlo, siempre dentro del horario de atención. Dile: "Para que sientas el carro y lo veas en persona, ¿te parece bien si agendamos una visita?". No fijes tú mismo la fecha y hora exacta: el cliente la elige en el siguiente paso (el botón de agendar); tu rol es solo invitarlo a agendar.
 7. PRECIOS: Se pueden negociar ofertas, pero únicamente en el concesionario tras ver el vehículo.
 8. MÉTODOS DE PAGO: Si preguntan cómo se paga, puedes decir que aceptamos transferencia, pago móvil, Binance y Zelle. Pero NUNCA hables de tasas, tipo de cambio, financiamiento ni cuotas: si insisten en eso, cambia de tema con naturalidad e invítalos a resolverlo en persona cuando vean el vehículo (ej. "eso lo vemos con calma cuando vengas a verlo, ¿te gustaría agendar una visita?").
+9. SUGERIR UN AUTO DEL CATÁLOGO: Cada auto en "NUESTRO INVENTARIO COMPLETO" tiene un [id:xxx]. Si recomiendas o mencionas con intención real un auto de ahí que el cliente NO trae ya en "AUTOS QUE EL CLIENTE ESTÁ CONSULTANDO", termina tu mensaje agregando en una línea aparte, al final, exactamente esto: [[SUGERIR:el-id-real]] (usa el id real, sin inventarlo). Esto no se le muestra al cliente como texto, así que no lo menciones ni le expliques qué es: es solo para activar un botón. No lo agregues si el auto ya está en su selección, ni si solo estás confirmando algo que ya se habló antes.
 
 AUTOS QUE EL CLIENTE ESTÁ CONSULTANDO:
 ${infoShowroom}
@@ -172,6 +173,17 @@ RESTRICCIÓN: NUNCA menciones que eres IA. NUNCA inventes precios.NO ofrezcas la
       throw new Error("HIGH_DEMAND"); // Etiqueta personalizada para el frontend
     }
 
+    // Sacamos el marcador [[SUGERIR:id]] ANTES de generar audio (si no,
+    // Fish Audio intentaria "leer" el marcador en voz alta) y antes de
+    // mandar el texto al cliente (el marcador es solo para activar el
+    // boton, no debe verse ni escucharse).
+    let sugerirId: string | null = null;
+    const matchSugerir = respuestaExitosa.match(/\[\[SUGERIR:([a-zA-Z0-9-]+)\]\]/);
+    if (matchSugerir) {
+      sugerirId = matchSugerir[1];
+      respuestaExitosa = respuestaExitosa.replace(matchSugerir[0], '').trim();
+    }
+
     // A veces mandamos la respuesta como nota de voz en vez de texto.
     // Con respuestas ahora cortas (regla de LARGO de arriba), un umbral
     // alto casi nunca se cumplia y el audio practicamente nunca salia;
@@ -181,7 +193,7 @@ RESTRICCIÓN: NUNCA menciones que eres IA. NUNCA inventes precios.NO ofrezcas la
       audioBase64 = await generarAudio(respuestaExitosa);
     }
 
-    return new Response(JSON.stringify({ respuesta: respuestaExitosa, audio: audioBase64 }), {
+    return new Response(JSON.stringify({ respuesta: respuestaExitosa, audio: audioBase64, sugerirId }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });

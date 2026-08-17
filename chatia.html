@@ -110,28 +110,29 @@
             }
         }
 
-        async function procesarRespuestaIA(texto) {
+        async function procesarRespuestaIA(texto, sugerirId) {
             // Dividir en burbujas si hay saltos de línea largos
             const burbujas = texto.split('\n\n').filter(b => b.trim() !== "");
-            
+
             for (const burbuja of burbujas) {
                 const idTyping = mostrarTyping();
-                
+
                 // Simular tiempo de escritura humano basado en la longitud
-                const tiempoEscritura = Math.max(800, Math.min(burbuja.length * 25, 2500)); 
+                const tiempoEscritura = Math.max(800, Math.min(burbuja.length * 25, 2500));
                 await new Promise(resolve => setTimeout(resolve, tiempoEscritura));
-                
+
                 const typingEl = document.getElementById(idTyping);
                 if (typingEl) typingEl.remove();
-                
+
                 agregarMensajeIA(burbuja);
             }
+            agregarBotonSugerirSiAplica(sugerirId);
         }
 
         // A veces el backend manda la respuesta como nota de voz en vez de
         // texto (variedad natural). El botón de "Agendar" se evalúa igual
         // que en texto, pero como bloque aparte debajo del audio.
-        async function procesarRespuestaAudio(base64, textoOriginal) {
+        async function procesarRespuestaAudio(base64, textoOriginal, sugerirId) {
             const idTyping = mostrarTyping();
             await new Promise(resolve => setTimeout(resolve, 1200));
             const typingEl = document.getElementById(idTyping);
@@ -139,6 +140,7 @@
 
             agregarMensajeAudioIA(base64);
             agregarBotonAgendarSiAplica(textoOriginal);
+            agregarBotonSugerirSiAplica(sugerirId);
         }
 
         function agregarMensajeAudioIA(base64) {
@@ -189,6 +191,37 @@
             }
         }
 
+        // Botón explícito para sumar a la selección el auto que la IA acaba
+        // de sugerir (backend manda el id real en result.sugerirId, ya
+        // limpio de marcadores). Más confiable que adivinar por texto qué
+        // carro se mencionó.
+        function agregarBotonSugerirSiAplica(id) {
+            if (!id) return;
+            const auto = inventarioGlobal.find(a => String(a.id) === String(id));
+            if (!auto) return;
+            if (contextoAutos.some(c => String(c.id) === String(id))) return;
+
+            const btnId = 'sugerir-' + Date.now();
+            document.getElementById('chat-box').insertAdjacentHTML('beforeend', `
+                <div class="flex gap-4 max-w-[85%] mt-1 ml-12">
+                    <button id="${btnId}" onclick="agregarVehiculoDesdeChat('${id}', this)" class="inline-flex items-center gap-2 bg-white border-2 border-[#d65127] text-[#d65127] px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[#d65127] hover:text-white transition-all">
+                        <i class="fa-solid fa-plus"></i> Agregar ${auto.marca} ${auto.modelo} a mi selección
+                    </button>
+                </div>`);
+            scrollToBottom();
+        }
+
+        function agregarVehiculoDesdeChat(id, btn) {
+            const auto = inventarioGlobal.find(a => String(a.id) === String(id));
+            if (!auto) return;
+            if (!contextoAutos.some(c => String(c.id) === String(id))) {
+                contextoAutos.push(auto);
+            }
+            btn.disabled = true;
+            btn.classList.add('bg-[#d65127]', 'text-white');
+            btn.innerHTML = `<i class="fa-solid fa-check"></i> Agregado a tu selección`;
+        }
+
         async function enviarMensaje() {
             const input = document.getElementById('user-input');
             const texto = input.value.trim();
@@ -229,9 +262,9 @@
                 
                 if (result.respuesta) {
                     if (result.audio) {
-                        await procesarRespuestaAudio(result.audio, result.respuesta);
+                        await procesarRespuestaAudio(result.audio, result.respuesta, result.sugerirId);
                     } else {
-                        await procesarRespuestaIA(result.respuesta);
+                        await procesarRespuestaIA(result.respuesta, result.sugerirId);
                     }
                     historialMensajes.push({ role: "assistant", content: result.respuesta });
                 } else {
@@ -295,15 +328,33 @@
         // se agenda visita solo por lo que ya estaba en el carrito antes de
         // entrar al chat. Buscamos en toda la conversación cualquier auto
         // del catálogo que se haya mencionado y lo sumamos.
+        function escaparRegex(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // Respaldo por si la IA sugirio un auto sin usar el marcador
+        // [[SUGERIR:id]] (ver agregarMensajeIA). Buscar "marca modelo"
+        // completo casi nunca aparece asi en el chat: las respuestas son
+        // cortas y con frecuencia solo mencionan el modelo ("el Corolla"),
+        // o en autos donde el modelo ya repite la marca (marca "MAZDA",
+        // modelo "MAZDA 3") el texto concatenado "mazda mazda 3" nunca
+        // aparece literal. Buscamos el modelo solo, como palabra completa;
+        // si es muy corto/generico exigimos que la marca tambien aparezca.
         function detectarYAgregarVehiculosMencionados() {
             const texto = historialMensajes.map(m => m.content).join(' ').toLowerCase();
             inventarioGlobal.forEach(auto => {
                 const yaEsta = contextoAutos.some(c => (auto.id && c.id === auto.id) || (c.marca === auto.marca && c.modelo === auto.modelo));
                 if (yaEsta) return;
-                const nombre = `${auto.marca} ${auto.modelo}`.toLowerCase();
-                if (nombre.trim() && texto.includes(nombre)) {
-                    contextoAutos.push(auto);
-                }
+
+                const modelo = (auto.modelo || '').trim().toLowerCase();
+                const marca = (auto.marca || '').trim().toLowerCase();
+                if (!modelo) return;
+
+                const modeloRegex = new RegExp(`\\b${escaparRegex(modelo)}\\b`, 'i');
+                if (!modeloRegex.test(texto)) return;
+                if (modelo.length <= 3 && marca && !texto.includes(marca)) return;
+
+                contextoAutos.push(auto);
             });
         }
 
